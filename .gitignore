@@ -1,0 +1,9 @@
+# compliled files 
+*.o
+# from absoft tools
+*.atools
+# dumped out data from run
+fort.*
+makefile*.*
+# executable files
+test_fmm
