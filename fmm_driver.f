@@ -10,6 +10,7 @@ c Source Points:
       dimension xat(nmax), yat(nmax)
 c
 c Source Strengths:
+      dimension randvec(nmax)
       complex*16 qa(nmax)
 c
 c Exact potenial and field
@@ -48,10 +49,10 @@ c for lack of a better idea, set up source points on a grid
 ccc         call prin2 (' X COORD OF SOURCES = *', xat, nat)
 ccc         call prin2 (' Y COORD OF SOURCES = *', yat, nat)
 c
-c Again, for lack of a better idea, define the source densities to be
-c the x-coordinate value
+c Calculate random source densities on (0,1)
+         call RANLUX (randvec,nat)
          do i = 1, nat
-            qa(i) = xat(i)
+            qa(i) = randvec(i)
          end do
 ccc         call PRIN2 (' SOURCE STRENGTHS = *', qa, nat)
 c
