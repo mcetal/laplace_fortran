@@ -1,0 +1,11 @@
+1 64
+10 10
+1. 0.8 0. 0. 0
+
+#
+# This file should contain the following
+  k, nd
+  nx, ny
+    do kbod = 1, k
+       ak(kbod), bk(kbod), cx(kbod), cy(kbod), ncyc(kbod)
+    end do

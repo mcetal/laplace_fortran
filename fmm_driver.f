@@ -37,8 +37,8 @@ c initialize plotting routine
 c
 c for lack of a better idea, set up source points on a grid
          icount = 0
-         do ix = -50, 50
-            do iy = -50, 50
+         do ix = -5, 5
+            do iy = -5, 5
                xat(icount+1) = float(ix)
                yat(icount+1) = float(iy)
                icount = icount+1
@@ -46,15 +46,15 @@ c for lack of a better idea, set up source points on a grid
          end do
          nat = icount
          call PRINF (' NUMBER OF SOURCES = *', nat, 1)
-ccc         call prin2 (' X COORD OF SOURCES = *', xat, nat)
-ccc         call prin2 (' Y COORD OF SOURCES = *', yat, nat)
+         call prin2 (' X COORD OF SOURCES = *', xat, nat)
+         call prin2 (' Y COORD OF SOURCES = *', yat, nat)
 c
 c Calculate random source densities on (0,1)
          call RANLUX (randvec,nat)
          do i = 1, nat
             qa(i) = randvec(i)
          end do
-ccc         call PRIN2 (' SOURCE STRENGTHS = *', qa, nat)
+         call PRIN2 (' SOURCE STRENGTHS = *', qa, nat)
 c
 c Calculate exact potential and field
 c let z_i = (x_i,y_i) or x_i + I y_i
@@ -116,10 +116,10 @@ c Check error in calculation
         end do
         call prin2 (' error in potential = *', err_pot, 1)
         call prin2 (' error in field = *', err_field, 1)
-ccc        call PRIN2 (' Exact Potential = *', poten_ex, nat)
-ccc        call PRIN2 (' FMM Potential = *', poten, nat) 
-ccc        call PRIN2 (' Exact Field = *', cfield_ex, 2*nat)
-ccc        call PRIN2 (' FMM Field = *', cfield, 2*nat)
+        call PRIN2 (' Exact Potential = *', poten_ex, nat)
+        call PRIN2 (' FMM Potential = *', poten, nat) 
+        call PRIN2 (' Exact Field = *', cfield_ex, 2*nat)
+        call PRIN2 (' FMM Field = *', cfield, 2*nat)
 c
       stop
       end

@@ -1,9 +1,18 @@
 # compliled files 
 *.o
+Release/*.o
+GMRES/Release/*.o
 # from absoft tools
+GMRES/*.atools
 *.atools
+# codes will generate *.m files for plotting
+*.m
 # dumped out data from run
 fort.*
 makefile*.*
 # executable files
 test_fmm
+laplace
+# library files
+GMRES/*.a
+
