@@ -98,6 +98,8 @@ c      tolerance for FMM
          call DAPIF2 (iout, iflag7, nat, napb, ninire, mex, ierr, 
      1                inform, tol, eps7, xat, yat, qa, poten,  
      2                cfield, wksp, nsp, CLOSE)
+         print *,'Testing source target'
+c	 call DAPIP2 ( 
          call PRINI (6, 13)
          if (ierr(1).ne.0) then
             write (6,*) '  ERROR IN DAPIF2, IERR = ', (ierr(ii),ii=1,6)

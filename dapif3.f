@@ -71,7 +71,7 @@ C   JL3(J)      = address of a box in third list for ith box if
 C                  J  in [L3(I),L3(I+1)-1]
 C   JL4(J)      = address of a box in fourth list for ith box if
 C                  J  in [L4(I),L4(I+1)-1]
-C   LO(*,I)     = coefficients of i-th box's multipole expansion
+C   LO(*,I)     = coefficients of i-th box's multipole expansion'
 C   EPS         = near approach distance.
 C   CLOSE       = is the near approach subroutine to be provided by the
 C                 user.It is called when two particles are within EPS of
@@ -274,7 +274,7 @@ CCC                 IF (NB3 .GT. NAPB) GOTO 200
 C
 C ----- Loop on the particles in J3.
 C       Compute their actions on particles in I  directly.
-C       Use newton's third law only if boxes have the same size.
+C       Use newton's third law only if boxes have the same size'.
 C
 		 IATS = IAT(J3)+1
 		 IATE = IATS + NB3-1
@@ -455,7 +455,7 @@ CCC                             FIELD(I2) = FIELD(I2)-FI1
  210          CONTINUE
 C
 C ----- Compute interactions for the particles
-C       that are in the same box using newton's third law
+C       that are in the same box using newton's third law'
 C
 	      IF (IFLAG .EQ. 1)  THEN
 		 DO 250 K=1,II-1
@@ -577,8 +577,8 @@ C   IBOX(I)     =  address of the box containing ith particle
 C   XB(I)       =  first coordinate of the center of ith box
 C   YB(I)       =  second coordinate of the center of ith box
 C   NBAT(I)     =  number of particles in ith box
-C   NPAR(I)     = address of ith box's parent (0 for boxes at 1st level)
-C   NCHI(I)     = address of ith box's 1st child (0 for a childless box)
+C   NPAR(I)     = address of ith box's parent (0 for boxes at 1st level)'
+C   NCHI(I)     = address of ith box's 1st child (0 for a childless box)'
 C
 C   *** OUTPUT PARAMETERS:
 C
@@ -623,7 +623,7 @@ C
 	   NP  = I
 C
 C ----- Shift local expansion from parent's center
-C       to children's centers, add to children's local expansion
+C       to children's centers, add to children's local expansion'
 C
 	   DO 250 IFTY=1,100000000
 	      IF (NP .NE. NP0)  GOTO 251
@@ -679,12 +679,12 @@ C
 	RETURN
 	END
 C
-C**********************************************************************
-C
+
+C*********************************************************************
 	SUBROUTINE DAAUPO (N,NAPB,IFLAG,NAT,NBOX,L,NL,
      *             XA,YA,XAU,YAU,QA,IBOX,XB,YB,NBAT,NPAR,NCHI,
      *             INDB,IAT,JAT,
-     *             LO,XU,YU,X,Y,PO,FI,EPS,RSCAL,QTOT,CLOSEP)
+     *             LO,XU,YU,X,Y,M,PO,FI,EPS,RSCAL,QTOT,CLOSEP)
 C
 C**********************************************************************
 C
@@ -711,17 +711,18 @@ C   IBOX(I)     =  address of the box containing ith particle
 C   XB(I)       =  first coordinate of the center of ith box
 C   YB(I)       =  second coordinate of the center of ith box
 C   NBAT(I)     =  number of particles in ith box
-C   NPAR(I)     = address of ith box's parent (0 for boxes at 1st level)
-C   NCHI(I)     = address of ith box's 1st child (0 for a childless box)
+C   NPAR(I)     = address of ith box's parent (0 for boxes at 1st level)'
+C   NCHI(I)     = address of ith box's 1st child (0 for a childless box)'
 C   INDB(I)     = 1 if i is a childless box, 0 if i is a parent box
 C   IAT(I)      = pointer to the list of particles in ith box
 C                 negative for boxes that are not childless
 C   JAT(IAT(I)) = is  equal to NBAT(I)
 C   JAT(J)      = address of particle contained in ith box
 C                 if J in [ IAT(I)+1 , IAT(I) + NBAT(I) ]
-C   LO(*,I)     = coefficients of i-th box's multipole expansion
-C   X           = first coordinate of point
-C   Y           = second coordinate of point
+C   LO(*,I)     = coefficients of i-th box's multipole expansion'
+C   X(K)        = first coordinate of point
+C   Y(K)        = second coordinate of point
+C   M           = Number of target points
 C   XU          = same as X except unscaled
 C   YU          = same as Y except unscaled
 C   EPS         = near approach distance.
@@ -734,31 +735,33 @@ C
 C   *** OUTPUT PARAMETERS:
 C
 C   IERR        =  error code array
-C   PO          = potential at the location of point
-C   FI          = field at the location of point
+C   PO(K)          = potential at the location of point
+C   FI(K)          = field at the location of point
 C
 C
 C**********************************************************************
 C
-	IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+	IMPLICIT DOUBLE PRECISION (O-Z)
 	INTEGER NL(1),IBOX(1),NBAT(1),NPAR(1),NCHI(1),INDB(1),
-     *          IAT(1),JAT(1),KBOX(36),JBOX(36)
+     *          IAT(1),JAT(1),KBOX(36),JBOX(36),M,C,G
 	DOUBLE PRECISION XAU(1),YAU(1),XA(1),YA(1),XB(1),YB(1),
-     *                   X,Y,PO,POP
-	DOUBLE COMPLEX QTOT,QA(1),LO(N,1),FI,FIP,Z,Z1,ZERO,OUT1,
+     *                   X(1),Y(1),XU(1),YU(1),PO(1),POP
+	DOUBLE COMPLEX QTOT,QA(1),LO(N,1),FI(1),FIP,Z(1),Z1,ZERO,OUT1,
      *                 OUT2,QJ
 	DATA ZERO/(0.0,0.0)/ , BOXSIZ/128.0/ ,DONE/1.0/
      *       DHALF/0.5/
-C
+
 C ----- Initializations
 C
 	COEF = RSCAL
 	COEP = DLOG(RSCAL)
 	EPS2 = EPS**2
 	EPS1 = EPS/RSCAL
-	Z = DCMPLX(X,Y)
-	PO = ZERO
-	FI = ZERO
+	DO 1001 C=1,M
+		Z(C) = DCMPLX(X(C),Y(C))
+		PO(C) = ZERO
+		FI(0) = ZERO
+1001	CONTINUE	
 	D  = BOXSIZ*(DONE + DHALF)
 	L2MIN = NL(1)
 	L2MAX = NL(2)-1
@@ -769,121 +772,125 @@ C
  10     CONTINUE
 C
 C ----- Loop
-C
-	DO 250 IFTY=1,100000000
-	   IF (IEN .LE. 0) GOTO 251
-	   IEND = IEN
-	   IEN = 0
-	   D  = D/2
-	   DO 100 KK = 1,IEND
-	      K  = KBOX(KK)
-	      NB = NBAT(K)
-	      X1 = XB(K)
-	      Y1 = YB(K)
-	      Z1 = DCMPLX(X1,Y1)
-	      XD = DABS(X-X1)
-	      YD = DABS(Y-Y1)
+	DO 1002 G = 1,M
+		DO 250 IFTY=1,100000000
+	   		IF (IEN .LE. 0) GOTO 251
+	   			IEND = IEN
+	   			IEN = 0
+	   			D  = D/2
+	   			DO 100 KK = 1,IEND
+	      			K  = KBOX(KK)
+	      			NB = NBAT(K)
+	      			X1 = XB(K)
+	      			Y1 = YB(K)
+	      			Z1 = DCMPLX(X1,Y1)
+	      			XD = DABS(X(G)-X1)
+	      			YD = DABS(Y(G)-Y1)
 C
 C ----- If separated, evaluate multipole expansion
-C
-	      IF ((XD .GE. D) .OR. (YD .GE. D)) THEN
-		 IF (IFLAG .EQ. 1)  THEN
-		    CALL DSLOR1(LO(2,K),Z1,Z,N,OUT2)
-		    FI = FI + OUT2
-		 ELSE
-		    CALL DSLORD(LO(2,K),Z1,Z,N,OUT2)
-		    CALL DSLOR0(LO(2,K),Z1,Z,N,OUT1)
-		    FI = FI + OUT2
-		    PO = PO + OUT1
-		 END IF
+C	
+		      		IF ((XD .GE. D) .OR. (YD .GE. D)) THEN
+			 		IF (IFLAG .EQ. 1)  THEN
+			    			CALL DSLOR1(LO(2,K),Z1,Z(G),N,OUT2)
+			    			FI(G) = FI(G) + OUT2
+		 			ELSE
+		    				CALL DSLORD(LO(2,K),Z1,Z(G),N,OUT2)
+		    				CALL DSLOR0(LO(2,K),Z1,Z(G),N,OUT1)
+		    				FI(G) = FI(G) + OUT2
+		    				PO(G) = PO(G) + OUT1
+		 			END IF
 C
 C ----- Else if box childless: compute direct interactions
 C
-CCC              ELSE IF (NB .LE. NAPB) THEN
-	      ELSE IF (INDB(K) .EQ. 1) THEN
-		 JMIN =IAT(K)+1
-		 JMAX = IAT(K)+NB
-		 IF (IFLAG .EQ. 1)  THEN
-		    DO 51 JJ = JMIN,JMAX
-		       J = JAT(JJ)
-		       XJ = XA(J)
-		       YJ = YA(J)
-		       QJ = QA(J)
-		       XX = X-XJ
-		       YY = Y-YJ
-		       R = XX**2+YY**2
-		       IF (R .LE. EPS2) THEN
-			  XJ = XAU(J)
-			  YJ = YAU(J)
-			  CALL CLOSEP(EPS1,J,QJ,XU,YU,XJ,YJ,FIP,POP)
+CCC            				ELSE IF (NB .LE. NAPB) THEN
+	      			ELSE IF (INDB(K) .EQ. 1) THEN
+		 			JMIN =IAT(K)+1
+		 			JMAX = IAT(K)+NB
+		 			IF (IFLAG .EQ. 1)  THEN
+		    				DO 51 JJ = JMIN,JMAX
+		       					J = JAT(JJ)
+		       					XJ = XA(J)
+		       					YJ = YA(J)
+		       					QJ = QA(J)
+		       					XX = X(G)-XJ
+		       					YY = Y(G)-YJ
+		       					R = XX**2+YY**2
+		      		 			IF (R .LE. EPS2) THEN
+			  					XJ = XAU(J)
+			  					YJ = YAU(J)
+			  					CALL CLOSEP(EPS1,J,QJ,XU(G),YU(G),XJ,YJ,FIP,POP)
 C
 C ----- Scale result from close subroutine
 C
-			  FIP = FIP/COEF
-			  FI = FI + FIP
-		       ELSE
-			  R = DONE/R
-			  RX = XX*R
-			  RY = YY*R
-			  OUT2 = DCMPLX(RX,-RY)
-			  FI = FI + OUT2*QJ
-			 END IF
- 51                 CONTINUE
-		 ELSE
-		    DO 52 JJ = JMIN,JMAX
-		       J = JAT(JJ)
-		       XJ = XA(J)
-		       YJ = YA(J)
-		       QJ = QA(J)
-		       XX = X - XJ
-		       YY = Y - YJ
-		       R = XX**2+YY**2
-		       IF (R .LE. EPS2) THEN
-			  XJ = XAU(J)
-			  YJ = YAU(J)
-			  CALL CLOSEP(EPS1,J,QJ,XU,YU,XJ,YJ,FIP,POP)
+			  					FIP = FIP/COEF
+		              					FI(G) = FI(G) + FIP
+		       		 			ELSE
+			  					R = DONE/R
+			  					RX = XX*R
+			  					RY = YY*R
+			  					OUT2 = DCMPLX(RX,-RY)
+			  					FI(G) = FI(G) + OUT2*QJ
+			 	 			END IF
+51                 				CONTINUE
+		 			ELSE
+		    				DO 52 JJ = JMIN,JMAX
+		       					J = JAT(JJ)
+		       					XJ = XA(J)
+		       					YJ = YA(J)
+		       					QJ = QA(J)
+		       					XX = X(G) - XJ
+		      					YY = Y(G) - YJ
+		       					R = XX**2+YY**2
+		       					IF (R .LE. EPS2) THEN
+			  					XJ = XAU(J)
+			  					YJ = YAU(J)
+			  					CALL CLOSEP(EPS1,J,QJ,XU(G),YU(G),XJ,YJ,FIP,POP)
 C
 C ----- Scale result from close subroutine
 C
-			  FIP = FIP/COEF
-CCCCC                     POP = POP + QTOT * COEP
-			  POP = POP + QJ   * COEP
-			  PO = PO + POP
-			  FI = FI + FIP
-		       ELSE
-			  R = DONE/R
-			  RX = XX*R
-			  RY = YY*R
-			  OUT2 = DCMPLX(RX,-RY)
-			  OUT3 = -DLOG(R)*DHALF
-			  OUT3 = OUT3*QJ
-			  PO = PO + OUT3
-			  FI = FI + OUT2*QJ
-		       END IF
- 52                 CONTINUE
-		 END IF
-C
+			  					FIP = FIP/COEF
+                         					POP = POP + QTOT * COEP
+			  					POP = POP + QJ   * COEP
+			  					PO(G) = PO(G) + POP
+			  					FI(G) = FI(G) + FIP
+		       					ELSE
+			  					R = DONE/R
+			 				        RX = XX*R
+			  					RY = YY*R
+			  					OUT2 = DCMPLX(RX,-RY)
+			  					OUT3 = -DLOG(R)*DHALF
+			  					OUT3 = OUT3*QJ
+			 					PO(G) = PO(G) + OUT3
+			 					FI(G) = FI(G) + OUT2*QJ
+		       					END IF
+ 52                 				CONTINUE
+		 			END IF
+
 C ----- Else if box is not childless: add its children to the
 C       non interaction list
 C
-	      ELSE
-		 NK = NCHI(K)
-		 NP = K
-		 DO 95 IFTY1=1,100000000
-		    IF (NP .NE. K) GOTO 96
-		    IEN = IEN+1
-		    JBOX(IEN)= NK
-		    NK = NK+1
-		    NP = NPAR(NK)
- 95              CONTINUE
- 96              CONTINUE
-	      END IF
- 100       CONTINUE
-	   DO 200 J=1,IEN
-	      KBOX(J) = JBOX(J)
- 200       CONTINUE
- 250    CONTINUE
- 251    CONTINUE
+	              	 	ELSE    
+		 			NK = NCHI(K)
+		 			NP = K
+		 			DO 95 IFTY1=1,100000000
+		    				IF (NP .NE. K) GOTO 96
+		    				IEN = IEN+1
+		    				JBOX(IEN)= NK
+		    				NK = NK+1
+		    				NP = NPAR(NK)
+95              			CONTINUE
+ 96              			CONTINUE
+	      			END IF
+ 100       		CONTINUE
+	  	 DO 200 J=1,IEN
+	  	  	  KBOX(J) = JBOX(J)
+200      	 CONTINUE
+ 250   			 CONTINUE
+ 251    	CONTINUE
+1002    CONTINUE
+	print *,"We have reached the end of DAAUP"
+	print *, PO(1)
+
 	RETURN
 	END
 C
