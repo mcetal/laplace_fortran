@@ -465,7 +465,8 @@ C
 C       Fast multipole method.
 C
 C
-C       A detailed descritpion is given in:C       A Fast Adaptive Algorithm for Particle Simulation.
+C       A detailed descritpion is given in:
+C       `A Fast Adaptive Algorithm for Particle Simulation'.
 C       J. Carrier, L. Greengard, V. Rokhlin.
 C       Yale U. Comp. Sci. Dept. RR # 496. Sep.86, Revised Jan.87
 C   _____________________________________________________________
@@ -900,7 +901,7 @@ C
 	ENDIF
 C
 C ----- Form interaction list (#1) and list of colleagues (#2)
-C       #1: separated children of parent's colleagues'
+C       #1: separated children of parent's colleagues
 C       #2: Adjacent boxes of the same size
 C
 	CALL DALI12 (NBOX,LEN,L,NL,WKSP(XB),WKSP(NYB),
@@ -1073,67 +1074,140 @@ C
 	      FIELD(I) = DCONJG(FIELD(I))*COEF
  220       CONTINUE
 	END IF
-
-C  PRINT *,'CALLING DAPIP4**************'
-C   CALL DAPIP4(N,NAPB,IFLAG,NAT,NBOX,L,NL,WKSP(NXA),
-C  *               WKSP(NYA),XA,YA,QA,WKSP(IBOX),WKSP(XB),
-C  *               WKSP(NYB),WKSP(NNBAT),WKSP(NNPAR),WKSP(NNCHI),
-C  *               WKSP(INDB),WKSP(IAT),WKSP(JAT), WKSP(LO),
-C  *               RSCAL,EPS7,QTOT,CLOSEP)
-
-    RETURN
-    END
-C Trying to call daaupo *********************
+C
+C**********************************************************************
+C
+C       ENTRY DAPIP2 (NAPB,IFLAG7,NAT,XA,YA,QA,
+C     *               WKSP,NSP,XAP,YAP,PO,FI,EPS7,CLOSEP)
+C
+C   *** INFORMATION :
+C
+C       Second entry of the subroutine DAPIF2 .  For a detailed
+C       description see the abbreviated manual.
+C
+C   *** DESCRIPTION :
+C
+C
+C       Compute the potential and/or field at an arbitrary point
+C       in the computationnal cell.
+C
+C   *** INPUT PARAMETERS:
+C
+C   NAPB      = maximum number of particles in a box
+C   IFLAG7    = 1 for computing fields only
+C               2 for computing potential and electric fields
+C               3 for Hilbert Matrix
+C   NAT       = number of particles
+C   QA(i)     = charge of a particle
+C   WKSP      = workspace array
+C   NSP       = length of work array
+C   XAP       = first coordinate of the point
+C   YAP       = second coordinate of the point
+C   EPS       = near approach distance.
+C               this number is provided by the user to check for very
+C               near approaches. If the point and a particle are within
+C               EPS ofeach other, the program executes a near approach
+C               subroutine CLOSEP which the user must declare as
+C               EXTERNAL in the calling program.
+C   CLOSEP    = is the near approach subroutine to be provided by the
+C               user. The calling sequence should be
+C                 CALL CLOSEP(EPS,I,QI,XAP,YAP,XI,YI,FI,PO)
+C               In many applications, when particles are very close,
+C               the nature of the force law changes. For example,
+C               the charges may be viewed as continuous distributions
+C               about their centers instead of as point charges.
+C
+C   *** OUTPUT PARAMETERS:
+C
+C   FI         = net field at location of the point
+C   PO         = potential at location of the point
+C
+C   *** SUBROUTINE CALLED:
+C
+C       DAAUPO
+C
+C
+C**********************************************************************
+C
+C	IF ((IFLAG7.EQ.3).OR.(IFLAG7.EQ.1)) IFLAG = 1
+C	IF (IFLAG7.EQ.2) IFLAG = 2
 C
 C ----- Scale arbitrary point position
 C
-    SUBROUTINE DAPIP4(N,NAPB,IFLAG,NAT,NBOX,L,NL,NXA,NYA,
-    *		XA,YA,QA,IBOX,XB,NYB,NNBAT,NNPAR,NNCHI,
-    *	        INDB,IAT,JAT,LO,RSCAL,EPS7,QTOT,CLOSEP)
-C
-	real XP1(1), YP1(1), XP(1), YP(1)
-	parameter M = 2
-
-	xp(1) = 1.00
-	xp(2) = 2.00
-	yp(1) = -1.00
-	yp(2) = -2.23
-	DO 1004 K=1,M 
-		XP1(K) = (XP(K)-XONEW) * RSCAL
-		YP1(K) = (YP(K)-YONEW) * RSCAL
-1004	CONTINUE
-	EPS = EPS7 * RSCAL
-	CALL DAAUPO (N,NAPB,IFLAG,NAT,NBOX,L,NL,
+C	XAP1 = (XAP-XONEW) * RSCAL
+C	YAP1 = (YAP-YONEW) * RSCAL
+C	EPS = EPS7 * RSCAL
+	
+	CALL DAPIP4 (N,NAPB,IFLAG,NAT,NBOX,L,NL,
      *       WKSP(NXA), WKSP(NYA),XA,YA,QA,WKSP(IBOX),WKSP(XB),
      *       WKSP(NYB), WKSP(NNBAT),WKSP(NNPAR),WKSP(NNCHI),
      *       WKSP(INDB),WKSP(IAT),
-     *       WKSP(JAT),WKSP(LO),XP,YP,XP1,YP1,M,PO,FI,EPS,RSCAL,
-     *       QTOT,CLOSEP)
-        DO 1005 K=1,M
-		FI(K) = DCONJG(FI(K))
+     *       WKSP(JAT),WKSP(LO),RSCAL,EPS7,QTOT,COEF
+     *       COEP,XONEW,YONEW,CLOSEP)
+C       FI = DCONJG(FI)
 C
+	RETURN
+	END
+C---------------------------------------------------------------------
+C
+	SUBROUTINE DAPIP4(N,NAPB,IFLAG,NAT,NBOX,L,NL,XA,YA,XAU,
+     *                   YAU,QA,IBOX,XB,YB,NBAT,NPAR,NCHI,INDB,
+     *                   IAT,JAT,LO,RSCAL,EPS7,QTOT,COEF,COEP,
+     *                   XONEW,YONEW,CLOSEP)
+C----------------------------------------------------------------------
+	DOUBLE PRECISION XP1(1), YP1(1), XP(1), YP(1), POTENTIAL(1),
+     *                   XA(1),YA(1),XAU(1),YAU(1),XB(1),YB(1),RSCAL,
+     *                   COEP,COEF,XONEW,YONEW,EPS7
+	DOUBLE COMPLEX FIELD(1),LO(N,1),QTOT,QA(1)
+	INTEGER M,K,N,L,NL(1),IBOX(1),NBAT(1),NPAR(1),NCHI(1),INDB(1),
+     *          IAT(1),JAT(1),NAT
+	
+	M = 2
+
+	xp(1) = 1.00
+	xp(2) = 2.00
+	yp(1) = 1.0
+	yp(2) = 2.0
+	
+	DO 1004 K=1,M
+		 
+		XP1(K) = (XP(K)-XONEW) * RSCAL
+		YP1(K) = (YP(K)-YONEW) * RSCAL
+1004	CONTINUE
+	
+	EPS = EPS7 * RSCAL
+	CALL DAAUPO (N,NAPB,IFLAG,NAT,NBOX,L,NL,
+     *              XA,YA,XAU,YAU,QA,IBOX,XB,
+     *              YB, NBAT, NPAR,NCHI,
+     *              INDB,IAT,
+     *              JAT,LO,XP,YP,XP1,YP1,M,POTENTIAL,FIELD,EPS,RSCAL,
+     *              QTOT,CLOSEP)
+	
+	DO 1005 K=1,M
+		FIELD(K) = DCONJG(FIELD(K))
+	print *,"After calling daaupo"
 C ----- Scale potentials and fields back
 C
 		IF (IFLAG7 .EQ. 1)  THEN
-	   		FI(K) = FI(K) * COEF
+	   		FIELD(K) = FIELD(K) * COEF
 		END IF
 		IF (IFLAG7 .EQ. 2)  THEN
-	  		 FI(K) = FI(K) * COEF
-	   		 PO(K) = PO(K) - QTOT * COEP
+	  		 FIELD(K) = FIELD(K) * COEF
+	   		 POTENTIAL(K) = POTENTIAL(K) - QTOT * COEP
 		END IF
 		IF (IFLAG7 .EQ. 3)  THEN
-	  		 FI(K) = DCONJG(FI(K)) * COEF
+	  		 FIELD(K) = DCONJG(FIELD(K)) * COEF
 		END IF
+		PRINT *,POTENTIAL(K)
 1005	CONTINUE	
-C
-
-
-
-
+	
+	
 
 	RETURN
-
+C
 	END
+
+
 C**********************************************************************
 C
 	SUBROUTINE DAASSI (EPS,NAPB,NAT,NBOX,NBOXMX,IERR,L,LMX,NL,
@@ -1536,7 +1610,7 @@ C                computational cell.
 C   L         =  number of levels plus one
 C   NL(I)     =  pointer to first box of ith level
 C   NBAT(I)   =  number of particles in ith box
-C   NCHI(I)   =  address of ith box's first child (0 for a childless box)'
+C   NCHI(I)   =  address of ith box's first child (0 for a childless box)
 C
 C   *** OUTPUT PARAMETERS:
 C
@@ -1653,13 +1727,3 @@ CCC        CALL PRINF(' JAT=*',JAT,NAT+NBOX+1)
 	RETURN
 	END
 C
-
-
-
-
-
-
-
-
-
-

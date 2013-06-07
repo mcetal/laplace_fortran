@@ -748,6 +748,7 @@ C
      *                   X(1),Y(1),XU(1),YU(1),PO(1),POP
 	DOUBLE COMPLEX QTOT,QA(1),LO(N,1),FI(1),FIP,Z(1),Z1,ZERO,OUT1,
      *                 OUT2,QJ
+
 	DATA ZERO/(0.0,0.0)/ , BOXSIZ/128.0/ ,DONE/1.0/
      *       DHALF/0.5/
 
@@ -759,8 +760,10 @@ C
 	EPS1 = EPS/RSCAL
 	DO 1001 C=1,M
 		Z(C) = DCMPLX(X(C),Y(C))
-		PO(C) = ZERO
-		FI(0) = ZERO
+		PO(C) = 0.d0
+		FI(C) = 0.d0
+C		print *,x(C),y(c)
+C		print *,xu(c),yu(c)
 1001	CONTINUE	
 	D  = BOXSIZ*(DONE + DHALF)
 	L2MIN = NL(1)
@@ -774,6 +777,7 @@ C
 C ----- Loop
 	DO 1002 G = 1,M
 		DO 250 IFTY=1,100000000
+			
 	   		IF (IEN .LE. 0) GOTO 251
 	   			IEND = IEN
 	   			IEN = 0
@@ -790,6 +794,7 @@ C
 C ----- If separated, evaluate multipole expansion
 C	
 		      		IF ((XD .GE. D) .OR. (YD .GE. D)) THEN
+					
 			 		IF (IFLAG .EQ. 1)  THEN
 			    			CALL DSLOR1(LO(2,K),Z1,Z(G),N,OUT2)
 			    			FI(G) = FI(G) + OUT2
@@ -804,6 +809,7 @@ C ----- Else if box childless: compute direct interactions
 C
 CCC            				ELSE IF (NB .LE. NAPB) THEN
 	      			ELSE IF (INDB(K) .EQ. 1) THEN
+					
 		 			JMIN =IAT(K)+1
 		 			JMAX = IAT(K)+NB
 		 			IF (IFLAG .EQ. 1)  THEN
@@ -833,6 +839,7 @@ C
 			 	 			END IF
 51                 				CONTINUE
 		 			ELSE
+						
 		    				DO 52 JJ = JMIN,JMAX
 		       					J = JAT(JJ)
 		       					XJ = XA(J)
@@ -888,8 +895,8 @@ C
  250   			 CONTINUE
  251    	CONTINUE
 1002    CONTINUE
-	print *,"We have reached the end of DAAUP"
-	print *, PO(1)
+C	print *,"We have reached the end of DAAUP"
+C	print *, PO(1)
 
 	RETURN
 	END
