@@ -1143,7 +1143,7 @@ C	EPS = EPS7 * RSCAL
      *       WKSP(NYB), WKSP(NNBAT),WKSP(NNPAR),WKSP(NNCHI),
      *       WKSP(INDB),WKSP(IAT),
      *       WKSP(JAT),WKSP(LO),RSCAL,EPS7,QTOT,COEF
-     *       COEP,XONEW,YONEW,CLOSEP)
+     *       COEP,XONEW,YONEW,CLOSE)
 C       FI = DCONJG(FI)
 C
 	RETURN
@@ -1160,7 +1160,7 @@ C----------------------------------------------------------------------
      *                   COEP,COEF,XONEW,YONEW,EPS7
 	DOUBLE COMPLEX FIELD(1),LO(N,1),QTOT,QA(1)
 	INTEGER M,K,N,L,NL(1),IBOX(1),NBAT(1),NPAR(1),NCHI(1),INDB(1),
-     *          IAT(1),JAT(1),NAT
+     *          IAT(1),JAT(1),NAT,IFLAG
 	
 	M = 2
 
@@ -1185,7 +1185,6 @@ C----------------------------------------------------------------------
 	
 	DO 1005 K=1,M
 		FIELD(K) = DCONJG(FIELD(K))
-	print *,"After calling daaupo"
 C ----- Scale potentials and fields back
 C
 		IF (IFLAG7 .EQ. 1)  THEN
