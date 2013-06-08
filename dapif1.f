@@ -1155,19 +1155,19 @@ C
      *                   IAT,JAT,LO,RSCAL,EPS7,QTOT,COEF,COEP,
      *                   XONEW,YONEW,CLOSEP)
 C----------------------------------------------------------------------
-	DOUBLE PRECISION XP1(1), YP1(1), XP(1), YP(1), POTENTIAL(1),
+	DOUBLE PRECISION XP1(2), YP1(2), XP(2), YP(2), POTENTIAL(2),
      *                   XA(1),YA(1),XAU(1),YAU(1),XB(1),YB(1),RSCAL,
      *                   COEP,COEF,XONEW,YONEW,EPS7
-	DOUBLE COMPLEX FIELD(1),LO(N,1),QTOT,QA(1)
+	DOUBLE COMPLEX FIELD(2),LO(N,1),QTOT,QA(1)
 	INTEGER M,K,N,L,NL(1),IBOX(1),NBAT(1),NPAR(1),NCHI(1),INDB(1),
      *          IAT(1),JAT(1),NAT,IFLAG
 	
 	M = 2
 
-	xp(1) = 1.00
-	xp(2) = 2.00
-	yp(1) = 1.0
-	yp(2) = 2.0
+	xp(1) = 789.d-2
+	xp(2) = 20.d0
+	yp(1) = 3.d0
+	yp(2) = 2.d0
 	
 	DO 1004 K=1,M
 		 
@@ -1186,7 +1186,8 @@ C----------------------------------------------------------------------
 	DO 1005 K=1,M
 		FIELD(K) = DCONJG(FIELD(K))
 C ----- Scale potentials and fields back
-C
+C		
+		print *,"Potential at target point",K
 		IF (IFLAG7 .EQ. 1)  THEN
 	   		FIELD(K) = FIELD(K) * COEF
 		END IF
@@ -1197,9 +1198,9 @@ C
 		IF (IFLAG7 .EQ. 3)  THEN
 	  		 FIELD(K) = DCONJG(FIELD(K)) * COEF
 		END IF
-		PRINT *,POTENTIAL(K)
+		print *,POTENTIAL(K)
 1005	CONTINUE	
-	
+		
 	
 
 	RETURN

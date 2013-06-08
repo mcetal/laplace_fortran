@@ -745,9 +745,9 @@ C
 	INTEGER NL(1),IBOX(1),NBAT(1),NPAR(1),NCHI(1),INDB(1),
      *          IAT(1),JAT(1),KBOX(36),JBOX(36),M,C,G,IEN,K,KK
 	DOUBLE PRECISION XAU(1),YAU(1),XA(1),YA(1),XB(1),YB(1),
-     *                   X(1),Y(1),XU(1),YU(1),PO(1),POP,COEF,EPS1,
+     *                   X(2),Y(2),XU(2),YU(2),PO(2),POP,COEF,EPS1,
      *                   EPS2,COEP,EPS
-	DOUBLE COMPLEX QTOT,QA(1),LO(N,1),FI(1),FIP,Z(1),Z1,ZERO,OUT1,
+	DOUBLE COMPLEX QTOT,QA(1),LO(N,1),FI(2),FIP,Z(1),Z1,ZERO,OUT1,
      *                 OUT2,QJ
 
 	DATA ZERO/(0.0,0.0)/ , BOXSIZ/128.0/ ,DONE/1.0/
@@ -793,7 +793,6 @@ C
 C ----- If separated, evaluate multipole expansion
 C	
 		      		IF ((XD .GE. D) .OR. (YD .GE. D)) THEN
-					print *,"separated"
 			 		IF (IFLAG .EQ. 1)  THEN
 			    			CALL DSLOR1(LO(2,K),Z1,Z(G),N,OUT2)
 			    			FI(G) = FI(G) + OUT2
@@ -801,7 +800,6 @@ C
 		    				CALL DSLORD(LO(2,K),Z1,Z(G),N,OUT2)
 		    				CALL DSLOR0(LO(2,K),Z1,Z(G),N,OUT1)
 		    				FI(G) = FI(G) + OUT2
-						print *,"After dslor1, Field is",FI(G)
 		    				PO(G) = PO(G) + OUT1
 		 			END IF
 C
@@ -809,7 +807,6 @@ C ----- Else if box childless: compute direct interactions
 C
 CCC            				ELSE IF (NB .LE. NAPB) THEN
 	      			ELSE IF (INDB(K) .EQ. 1) THEN
-					print *,"childless"
 		 			JMIN =IAT(K)+1
 		 			JMAX = IAT(K)+NB
 		 			IF (IFLAG .EQ. 1)  THEN
@@ -875,14 +872,13 @@ C ----- Scale result from close subroutine
 								
 		       					END IF
  52                 				CONTINUE
-						print *,"Field childless is",FI(G)
 		 			END IF
 
 C ----- Else if box is not childless: add its children to the
 C       non interaction list
 C
 	              	 	ELSE    
-					print *,"not either"
+
 		 			NK = NCHI(K)
 		 			NP = K
 		 			DO 95 IFTY1=1,100000000
@@ -893,18 +889,15 @@ C
 		    				NP = NPAR(NK)
 95              			CONTINUE
  96              			CONTINUE
-					print *,"Field here is ,",FI(G)
+
 	      			END IF
  100       		CONTINUE
 	  	 DO 200 J=1,IEN
-			  print *,"last loop"
 	  	  	  KBOX(J) = JBOX(J)
 200      	 CONTINUE
  250   			 CONTINUE
  251    	CONTINUE
 1002    CONTINUE
-	print *,"We have reached the end of DAAUPO"
-	print *, PO(1)
 
 	RETURN
 	END
