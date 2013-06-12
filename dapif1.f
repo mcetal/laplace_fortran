@@ -1138,12 +1138,13 @@ C	XAP1 = (XAP-XONEW) * RSCAL
 C	YAP1 = (YAP-YONEW) * RSCAL
 C	EPS = EPS7 * RSCAL
 	
+		
 	CALL DAPIP4 (N,NAPB,IFLAG,NAT,NBOX,L,NL,
      *       WKSP(NXA), WKSP(NYA),XA,YA,QA,WKSP(IBOX),WKSP(XB),
      *       WKSP(NYB), WKSP(NNBAT),WKSP(NNPAR),WKSP(NNCHI),
      *       WKSP(INDB),WKSP(IAT),
-     *       WKSP(JAT),WKSP(LO),RSCAL,EPS7,QTOT,COEF
-     *       COEP,XONEW,YONEW,CLOSE)
+     *       WKSP(JAT),WKSP(LO),RSCAL,EPS7,QTOT,
+     *        XONEW,YONEW,CLOSE)
 C       FI = DCONJG(FI)
 C
 	RETURN
@@ -1152,27 +1153,37 @@ C---------------------------------------------------------------------
 C
 	SUBROUTINE DAPIP4(N,NAPB,IFLAG,NAT,NBOX,L,NL,XA,YA,XAU,
      *                   YAU,QA,IBOX,XB,YB,NBAT,NPAR,NCHI,INDB,
-     *                   IAT,JAT,LO,RSCAL,EPS7,QTOT,COEF,COEP,
+     *                   IAT,JAT,LO,RSCAL,EPS7,QTOT,
      *                   XONEW,YONEW,CLOSEP)
 C----------------------------------------------------------------------
-	DOUBLE PRECISION XP1(2), YP1(2), XP(2), YP(2), POTENTIAL(2),
-     *                   XA(1),YA(1),XAU(1),YAU(1),XB(1),YB(1),RSCAL,
-     *                   COEP,COEF,XONEW,YONEW,EPS7
-	DOUBLE COMPLEX FIELD(2),LO(N,1),QTOT,QA(1)
-	INTEGER M,K,N,L,NL(1),IBOX(1),NBAT(1),NPAR(1),NCHI(1),INDB(1),
-     *          IAT(1),JAT(1),NAT,IFLAG
+	
+	DOUBLE PRECISION XA(1),YA(1),XAU(1),YAU(1),XB(1),YB(1),RSCAL,EPS7,
+     *                   XONEW,YONEW
+	DOUBLE COMPLEX LO(N,1),QTOT,QA(1)
+	INTEGER N,NAPB,IFLAG,L,NL(1),NBOX,IBOX(1),NBAT(1),NPAR(1),NCHI(1),INDB(1),
+     *          IAT(1),JAT(1),NAT
+
+
+C  		LOCAL VARIABLES
+	DOUBLE PRECISION POTENTIAL(2),EPS,XP(2),YP(2),XP1(2),YP1(2)
+	DOUBLE COMPLEX FIELD(2)
+	INTEGER M,K
 	
 	M = 2
+C    Initializations
+	XP(1) = 1.d0
+	XP(2) = 123.d-2
+	YP(1) = 100.d0
+	YP(2) = 2.5d0
+	COEF = RSCAL
+	COEP = DLOG(RSCAL)
 
-	xp(1) = 789.d-2
-	xp(2) = 20.d0
-	yp(1) = 3.d0
-	yp(2) = 2.d0
-	
 	DO 1004 K=1,M
 		 
 		XP1(K) = (XP(K)-XONEW) * RSCAL
 		YP1(K) = (YP(K)-YONEW) * RSCAL
+		POTENTIAL(K) = 0.d0
+		FIELD(K) =  (0.0,0.0)
 1004	CONTINUE
 	
 	EPS = EPS7 * RSCAL
@@ -1182,12 +1193,10 @@ C----------------------------------------------------------------------
      *              INDB,IAT,
      *              JAT,LO,XP,YP,XP1,YP1,M,POTENTIAL,FIELD,EPS,RSCAL,
      *              QTOT,CLOSEP)
-	
 	DO 1005 K=1,M
 		FIELD(K) = DCONJG(FIELD(K))
 C ----- Scale potentials and fields back
 C		
-		print *,"Potential at target point",K
 		IF (IFLAG7 .EQ. 1)  THEN
 	   		FIELD(K) = FIELD(K) * COEF
 		END IF
@@ -1198,9 +1207,13 @@ C
 		IF (IFLAG7 .EQ. 3)  THEN
 	  		 FIELD(K) = DCONJG(FIELD(K)) * COEF
 		END IF
-		print *,POTENTIAL(K)
-1005	CONTINUE	
 		
+1005	CONTINUE
+	
+C	PRINTING INFORMATION : POTENTIAL AND FIELD AT TARGET POINTS
+	
+	CALL PRINF("POTENTIAL AT TARGET POINTS: ",POTENTIAL,M)
+	CALL PRINF("FIELD AT TARGET POINTS: ",FIELD,M)		
 	
 
 	RETURN

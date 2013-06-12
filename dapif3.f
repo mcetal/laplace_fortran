@@ -146,21 +146,21 @@ C
 C ----- Loop on the boxes of that level
 C
 	   DO 300 I=LMIN,LMAX
-	      NBI = NBAT(I)
+		NBI = NBAT(I)
 C
 C ----- If box not childless : skip
 C
 CCC              IF (NBI .GT. NAPB) GOTO 300
-	      IF (INDB(I) .EQ. 0) GOTO 300
-	      XI = XB(I)
-	      YI = YB(I)
+		IF (INDB(I) .EQ. 0) GOTO 300
+		XI = XB(I)
+		YI = YB(I)
 C
 C ----- Form tables of positions and charges of particles in i-th box
 C
-	      IATS = IAT(I)+1
-	      IATE = IATS + NBI-1
-	      II = 0
-	      DO 10 IATI = IATS,IATE
+		IATS = IAT(I)+1
+		IATE = IATS + NBI-1
+		II = 0
+		DO 10 IATI = IATS,IATE
 		 II = II+1
 		 JATI = JAT(IATI)
 		 ZI(II) = DCMPLX(XA(JATI),YA(JATI))
@@ -170,16 +170,16 @@ C
 C
 C ---- Fourth list
 C
-	      L4MIN = L4(I)
-	      L4MAX = L4(I+1)-1
+		L4MIN = L4(I)
+		L4MAX = L4(I+1)-1
 C
 C ----- If fourth list empty : skip
 C
-	      IF (L4MAX.LT.L4MIN) GOTO 110
+		IF (L4MAX.LT.L4MIN) GOTO 110
 C
 C ---- Loop on the elements of fourth list
 C
-	      DO 100 I4 = L4MIN,L4MAX
+		DO 100 I4 = L4MIN,L4MAX
 		 J4 = JL4(I4)
 		 NPJ4 = NPAR(J4)
 		 X4 = XB(J4)
@@ -193,31 +193,31 @@ C       to a local expansion about the center of J4
 C
 		 IF (IFLAG .EQ. 1) THEN
 		    DO 50 K=1,II
-		       IBA=IBAK(K)
-		       DCA = (X4-XA(IBA))**2+(Y4-YA(IBA))**2
-		       RIND = DCP/DCA
-		       IND =  RIND
-		       IF (IND .LT. 1)  IND = 1
-		       IF (IND .GT. 20) IND = 20
-		       N2(K) = NTERM(IND)
-		       A0 = CHARGI(K)
-		       CALL DSLOT3(A0,ZI(K),Z4,B(2),N2(K))
-		       DO 30 J=1,N2(K)+1
+			 IBA=IBAK(K)
+			 DCA = (X4-XA(IBA))**2+(Y4-YA(IBA))**2
+			 RIND = DCP/DCA
+			 IND =  RIND
+			 IF (IND .LT. 1)  IND = 1
+			 IF (IND .GT. 20) IND = 20
+			 N2(K) = NTERM(IND)
+			 A0 = CHARGI(K)
+			 CALL DSLOT3(A0,ZI(K),Z4,B(2),N2(K))
+			 DO 30 J=1,N2(K)+1
 			  TA(J,J4) = TA(J,J4) + B(J)
  30                    CONTINUE
  50                 CONTINUE
 		 ELSE
 		    DO 51 K=1,II
-		       IBA=IBAK(K)
-		       DCA = (X4-XA(IBA))**2+(Y4-YA(IBA))**2
-		       RIND = DCP/DCA
-		       IND =  RIND
-		       IF (IND .LT. 1)  IND = 1
-		       IF (IND .GT. 20) IND = 20
-		       N2(K) = NTERM(IND)
-		       A0 = CHARGI(K)
-		       CALL DSLOT1(A0,ZI(K),Z4,B(2),N2(K))
-		       DO 31 J=1,N2(K)+1
+			 IBA=IBAK(K)
+			 DCA = (X4-XA(IBA))**2+(Y4-YA(IBA))**2
+			 RIND = DCP/DCA
+			 IND =  RIND
+			 IF (IND .LT. 1)  IND = 1
+			 IF (IND .GT. 20) IND = 20
+			 N2(K) = NTERM(IND)
+			 A0 = CHARGI(K)
+			 CALL DSLOT1(A0,ZI(K),Z4,B(2),N2(K))
+			 DO 31 J=1,N2(K)+1
 			  TA(J,J4) = TA(J,J4) + B(J)
  31                    CONTINUE
  51                 CONTINUE
@@ -228,15 +228,15 @@ C       at every particle in I
 C
 		 IF (IFLAG .EQ. 1) THEN
 		    DO 70 K=1,II
-		       CALL DSLOR1(LO(2,J4),Z4,ZI(K),N2(K),OUT2)
-		       FIELD(IBAK(K)) = FIELD(IBAK(K)) + OUT2
+			 CALL DSLOR1(LO(2,J4),Z4,ZI(K),N2(K),OUT2)
+			 FIELD(IBAK(K)) = FIELD(IBAK(K)) + OUT2
  70                 CONTINUE
 		 ELSE
 		    DO 71 K=1,II
-		       CALL DSLORD(LO(2,J4),Z4,ZI(K),N2(K),OUT2)
-		       CALL DSLOR0(LO(2,J4),Z4,ZI(K),N2(K),OUT1)
-		       FIELD(IBAK(K)) = FIELD(IBAK(K)) + OUT2
-		       POTEN(IBAK(K)) = POTEN(IBAK(K)) + OUT1
+			 CALL DSLORD(LO(2,J4),Z4,ZI(K),N2(K),OUT2)
+			 CALL DSLOR0(LO(2,J4),Z4,ZI(K),N2(K),OUT1)
+			 FIELD(IBAK(K)) = FIELD(IBAK(K)) + OUT2
+			 POTEN(IBAK(K)) = POTEN(IBAK(K)) + OUT1
  71                 CONTINUE
 		 END IF
  100          CONTINUE
@@ -245,23 +245,23 @@ C
 C ----- Adjacent boxes: third list (or second list if all colleagues
 C       are childless
 C
-	      L3MIN = L3(I)
-	      L3MAX = L3(I+1)-1
+		L3MIN = L3(I)
+		L3MAX = L3(I+1)-1
 C
 C ----- If third list empty: look at second list
 C
-	      IF (L3MAX.LT.L3MIN) THEN
+		IF (L3MAX.LT.L3MIN) THEN
 		 L3MIN = L2(I)
 		 L3MAX = L1(I+1)-1
 		 IF (L3MAX .LT. L3MIN) GOTO 210
 		 LISTNB = 2
-	      ELSE
+		ELSE
 		 LISTNB = 3
-	      END IF
+		END IF
 C
 C ---- Loop on boxes in adjacency (2nd or 3rd) list
 C
-	      DO 200 I3=L3MIN,L3MAX
+		DO 200 I3=L3MIN,L3MAX
 		 IF (LISTNB .EQ. 3) J3 = JL3(I3)
 		 IF (LISTNB .EQ. 2) J3 = JL(I3)
 		 NB3 = NBAT(J3)
@@ -280,7 +280,7 @@ C
 		 IATE = IATS + NB3-1
 		 IF ((XD .GT. D) .OR. (YD .GT. D)) THEN
 		    IF (IFLAG .EQ.1)  THEN
-		       DO 140 IP=IATS,IATE
+			 DO 140 IP=IATS,IATE
 			  JP = JAT(IP)
 			  ZP = DCMPLX(XA(JP),YA(JP))
 			  QP = QA(JP)
@@ -315,7 +315,7 @@ C
  120                      CONTINUE
  140                   CONTINUE
 		    ELSE
-		       DO 141 IP=IATS,IATE
+			 DO 141 IP=IATS,IATE
 			  JP = JAT(IP)
 			  ZP = DCMPLX(XA(JP),YA(JP))
 			  QP = QA(JP)
@@ -325,7 +325,7 @@ C
 			     YY = YA(IBA)-YA(JP)
 			     R = XX**2+YY**2
 			     IF (R .LE. EPS2) THEN
-		                I1 = IBA
+				    I1 = IBA
 				I2 = JP
 				Q1 = QA(IBA)
 				Q2 = QP
@@ -360,7 +360,7 @@ CCCC                            POT1 = POT1 +       QA(I1) *COEP
 		    END IF
 		 ELSE
 		    IF (IFLAG .EQ. 1)  THEN
-		       DO 180 IP=IATS,IATE
+			 DO 180 IP=IATS,IATE
 			  JP = JAT(IP)
 			  ZP = DCMPLX(XA(JP),YA(JP))
 			  QP = QA(JP)
@@ -400,7 +400,7 @@ CCC                             FIELD(I1) = FIELD(I1)-FI2
  160                      CONTINUE
  180                   CONTINUE
 		    ELSE
-		       DO 181 IP=IATS,IATE
+			 DO 181 IP=IATS,IATE
 			  JP = JAT(IP)
 			  ZP = DCMPLX(XA(JP),YA(JP))
 			  QP = QA(JP)
@@ -457,15 +457,15 @@ C
 C ----- Compute interactions for the particles
 C       that are in the same box using newton's third law'
 C
-	      IF (IFLAG .EQ. 1)  THEN
+		IF (IFLAG .EQ. 1)  THEN
 		 DO 250 K=1,II-1
 		    IBA1 = IBAK(K)
 		    DO 230 J=K+1,II
-		       IBA2 = IBAK(J)
-		       XX = XA(IBA1)-XA(IBA2)
-		       YY = YA(IBA1)-YA(IBA2)
-		       R = XX**2+YY**2
-		       IF (R .LE. EPS2) THEN
+			 IBA2 = IBAK(J)
+			 XX = XA(IBA1)-XA(IBA2)
+			 YY = YA(IBA1)-YA(IBA2)
+			 R = XX**2+YY**2
+			 IF (R .LE. EPS2) THEN
 			  I1 = IBA1
 			  I2 = IBA2
 			  Q1 = QA(IBA1)
@@ -484,25 +484,25 @@ C
 CCC                       FIELD(I2) = FIELD(I2)-FI1
 			  FIELD(I2) = FIELD(I2)+FI1
 			  FIELD(I1) = FIELD(I1)+FI2
-		       ELSE
+			 ELSE
 			  R = DONE/R
 			  RX = XX*R
 			  RY = YY*R
 			  OUT2 = DCMPLX(RX,-RY)
 			  FIELD(IBA2) = FIELD(IBA2) - OUT2*CHARGI(K)
 			  FIELD(IBA1) = FIELD(IBA1) + OUT2*CHARGI(J)
-		       END IF
+			 END IF
  230                CONTINUE
  250             CONTINUE
-	      ELSE
+		ELSE
 		 DO 251 K=1,II-1
 		    IBA1 = IBAK(K)
 		    DO 231 J=K+1,II
-		       IBA2 = IBAK(J)
-		       XX = XA(IBA1)-XA(IBA2)
-		       YY = YA(IBA1)-YA(IBA2)
-		       R = XX**2+YY**2
-		       IF (R .LE. EPS2) THEN
+			 IBA2 = IBAK(J)
+			 XX = XA(IBA1)-XA(IBA2)
+			 YY = YA(IBA1)-YA(IBA2)
+			 R = XX**2+YY**2
+			 IF (R .LE. EPS2) THEN
 			  I1 = IBA1
 			  I2 = IBA2
 			  Q1 = QA(IBA1)
@@ -527,7 +527,7 @@ CCCCC                     POT2 = POT2 + (QTOT-Q1)*COEP
 CCC                       FIELD(I2) = FIELD(I2)-FI1
 			  FIELD(I2) = FIELD(I2)+FI1
 			  FIELD(I1) = FIELD(I1)+FI2
-		       ELSE
+			 ELSE
 			  R = DONE/R
 			  RX = XX*R
 			  RY = YY*R
@@ -539,10 +539,10 @@ CCC                       FIELD(I2) = FIELD(I2)-FI1
 			  POTEN(IBA1) = POTEN(IBA1) + OUT3J
 			  FIELD(IBA2) = FIELD(IBA2) - OUT2*CHARGI(K)
 			  FIELD(IBA1) = FIELD(IBA1) + OUT2*CHARGI(J)
-		       END IF
+			 END IF
  231                CONTINUE
  251             CONTINUE
-	      END IF
+		END IF
  300       CONTINUE
  400    CONTINUE
 	RETURN
@@ -626,12 +626,12 @@ C ----- Shift local expansion from parent's center
 C       to children's centers, add to children's local expansion'
 C
 	   DO 250 IFTY=1,100000000
-	      IF (NP .NE. NP0)  GOTO 251
+		IF (NP .NE. NP0)  GOTO 251
 CCCC       CALL PRINF('NK=*',NK,1)
-	      XK = XB(NK)
-	      YK = YB(NK)
-	      ZK = DCMPLX(XK,YK)
-	      ZV = ZK - Z
+		XK = XB(NK)
+		YK = YB(NK)
+		ZK = DCMPLX(XK,YK)
+		ZV = ZK - Z
 CCCC          IF( CDABS(ZV) .LT.8 )  GOTO 190
 CCCC          CALL PRINF('I=*',I,1)
 CCCC          CALL PRINF('NK=*',NK,1)
@@ -640,12 +640,12 @@ CCCC          CALL PRIN2('BEFORE DSTATA, ZK=*',ZK,2)
 CCCC          CALL PRIN2('BEFORE DSTATA, Z =*',Z ,2)
 CCCC          CALL PRIN2('BEFORE DSTATA, ZV=*',ZV,2)
  190       CONTINUE
-	      CALL DSTATA(TA(2,I),ZV,B(2),N1)
-	      DO 200 K=1,N
+		CALL DSTATA(TA(2,I),ZV,B(2),N1)
+		DO 200 K=1,N
 		 TA(K,NK) = TA(K,NK) + B(K)
  200          CONTINUE
-	      NK = NK+1
-	      NP = NPAR(NK)
+		NK = NK+1
+		NP = NPAR(NK)
  250       CONTINUE
  251       CONTINUE
  300    CONTINUE
@@ -665,15 +665,15 @@ C ----- Add what has already been accounted
 C       with evaluation of local expansion.
 C
 	   IF (IFLAG .EQ. 1)  THEN
-	      CALL DSTAYL(TA(2,IB),ZIB,ZA,N1,OUT2)
-	      FIELD(I) = FIELD(I)+OUT2
-	      FIELD(I) = DCONJG(FIELD(I))
+		CALL DSTAYL(TA(2,IB),ZIB,ZA,N1,OUT2)
+		FIELD(I) = FIELD(I)+OUT2
+		FIELD(I) = DCONJG(FIELD(I))
 	   ELSE
-	      CALL DSTAYD(TA(2,IB),ZIB,ZA,N1,OUT2)
-	      CALL DSTAYL(TA(2,IB),ZIB,ZA,N1,OUT1)
-	      POTEN(I) = POTEN(I)+OUT1
-	      FIELD(I) = FIELD(I)+OUT2
-	      FIELD(I) = DCONJG(FIELD(I))
+		CALL DSTAYD(TA(2,IB),ZIB,ZA,N1,OUT2)
+		CALL DSTAYL(TA(2,IB),ZIB,ZA,N1,OUT1)
+		POTEN(I) = POTEN(I)+OUT1
+		FIELD(I) = FIELD(I)+OUT2
+		FIELD(I) = DCONJG(FIELD(I))
 	   END IF
  500    CONTINUE
 	RETURN
@@ -768,135 +768,142 @@ C
 	L2MIN = NL(1)
 	L2MAX = NL(2)-1
 	IEND = 0
-	DO 10 K=L2MIN,L2MAX
-	   IEN = IEN +1
-	   KBOX(IEN) = K
- 10     CONTINUE
 C
 C ----- Loop
 	DO 1002 G = 1,M
+		DO 10 K=L2MIN,L2MAX
+	   		IEN = IEN +1
+	   		KBOX(IEN) = K
+10    	CONTINUE
+
 		DO 250 IFTY=1,100000000
-			
-	   		IF (IEN .LE. 0) GOTO 251
-	   			IEND = IEN
-	   			IEN = 0
-	   			D  = D/2
-	   			DO 100 KK = 1,IEND
-	      			K  = KBOX(KK)
-	      			NB = NBAT(K)
-	      			X1 = XB(K)
-	      			Y1 = YB(K)
-	      			Z1 = DCMPLX(X1,Y1)
-	      			XD = DABS(X(G)-X1)
-	      			YD = DABS(Y(G)-Y1)
-C
+C			print *,"IFTY: ",ifty	
+			IF (IEN .LE. 0) GOTO 251
+			IEND = IEN
+			IEN = 0
+			D  = D/2
+			DO 100 KK = 1,IEND
+C					print *,"KK: ",KK
+					K  = KBOX(KK)
+C					print *,"K:",K
+					NB = NBAT(K)
+					X1 = XB(K) 
+					Y1 = YB(K)
+					Z1 = DCMPLX(X1,Y1)
+					XD = DABS(X(G)-X1)
+					YD = DABS(Y(G)-Y1)
+C					print *,"Child status of box ",K,"is:",INDB(K)
+				
 C ----- If separated, evaluate multipole expansion
 C	
-		      		IF ((XD .GE. D) .OR. (YD .GE. D)) THEN
-			 		IF (IFLAG .EQ. 1)  THEN
-			    			CALL DSLOR1(LO(2,K),Z1,Z(G),N,OUT2)
-			    			FI(G) = FI(G) + OUT2
-					ELSE
-		    				CALL DSLORD(LO(2,K),Z1,Z(G),N,OUT2)
-		    				CALL DSLOR0(LO(2,K),Z1,Z(G),N,OUT1)
-		    				FI(G) = FI(G) + OUT2
-		    				PO(G) = PO(G) + OUT1
-		 			END IF
+					IF ((XD .GE. D) .OR. (YD .GE. D)) THEN
+C						print *,"inside multipole expansion"
+						IF (IFLAG .EQ. 1)  THEN
+							CALL DSLOR1(LO(2,K),Z1,Z(G),N,OUT2)
+							FI(G) = FI(G) + OUT2
+						ELSE
+							CALL DSLORD(LO(2,K),Z1,Z(G),N,OUT2)
+							CALL DSLOR0(LO(2,K),Z1,Z(G),N,OUT1)
+							FI(G) = FI(G) + OUT2
+							PO(G) = PO(G) + OUT1
+						END IF
 C
 C ----- Else if box childless: compute direct interactions
-C
-CCC            				ELSE IF (NB .LE. NAPB) THEN
-	      			ELSE IF (INDB(K) .EQ. 1) THEN
-		 			JMIN =IAT(K)+1
-		 			JMAX = IAT(K)+NB
-		 			IF (IFLAG .EQ. 1)  THEN
-		    				DO 51 JJ = JMIN,JMAX
-		       					J = JAT(JJ)
-		       					XJ = XA(J)
-		       					YJ = YA(J)
-		       					QJ = QA(J)
-		       					XX = X(G)-XJ
-		       					YY = Y(G)-YJ
-		       					R = XX**2+YY**2
-		      		 			IF (R .LE. EPS2) THEN
-			  					XJ = XAU(J)
-			  					YJ = YAU(J)
-			  					CALL CLOSEP(EPS1,J,QJ,XU(G),YU(G),XJ,YJ,FIP,POP)
-C
-C ----- Scale result from close subroutine
-C
-			  					FIP = FIP/COEF
-		              					FI(G) = FI(G) + FIP
-		       		 			ELSE
-			  					R = DONE/R
-			  					RX = XX*R
-			  					RY = YY*R
-			  					OUT2 = DCMPLX(RX,-RY)
-			  					FI(G) = FI(G) + OUT2*QJ
-			 	 			END IF
-51                 				CONTINUE
-		 			ELSE
-					
-		    				DO 52 JJ = JMIN,JMAX
-		       					J = JAT(JJ)
-		       					XJ = XA(J)
-		       					YJ = YA(J)
-		       					QJ = QA(J)
-		       					XX = X(G) - XJ
-		      					YY = Y(G) - YJ
-		       					R = XX**2+YY**2
-		       					IF (R .LE. EPS2) THEN
-			  					XJ = XAU(J)
-			  					YJ = YAU(J)
-			  					CALL CLOSEP(EPS1,J,QJ,XU(G),YU(G),XJ,YJ,FIP,POP)
+					ELSE IF (INDB(K) .EQ. 1) THEN
+C						print *,"inside childless"
+						JMIN =IAT(K)+1
+						JMAX = IAT(K)+NB
+						IF (IFLAG .EQ. 1)  THEN
+							DO 51 JJ = JMIN,JMAX
+								J = JAT(JJ)
+								XJ = XA(J)
+								YJ = YA(J)
+								QJ = QA(J)
+								XX = X(G)-XJ
+								YY = Y(G)-YJ
+								R = XX**2+YY**2
+								IF (R .LE. EPS2) THEN
+									XJ = XAU(J)
+									YJ = YAU(J)
+									CALL CLOSEP(EPS1,J,QJ,XU(G),YU(G),XJ,YJ,FIP,POP)
 C
 C ----- Scale result from close subroutine
-								
-			  					FIP = FIP/COEF
-                         					POP = POP + QTOT * COEP
-			  					POP = POP + QJ   * COEP
-			  					PO(G) = PO(G) + POP
-			  					FI(G) = FI(G) + FIP
+C
+									FIP = FIP/COEF
+									FI(G) = FI(G) + FIP
+								ELSE
+									R = DONE/R
+									RX = XX*R
+									RY = YY*R
+									OUT2 = DCMPLX(RX,-RY)
+									FI(G) = FI(G) + OUT2*QJ
+								END IF
+51							CONTINUE
+					      ELSE
+C							print *,"childless and iflag is 2"	
+							DO 52 JJ = JMIN,JMAX
+								J = JAT(JJ)
+								XJ = XA(J)
+								YJ = YA(J)
+								QJ = QA(J)
+								XX = X(G) - XJ
+								YY = Y(G) - YJ
+								R = XX**2+YY**2
+								IF (R .LE. EPS2) THEN
+C									print *,"childless, iflag 2 and close"
+									XJ = XAU(J)
+									YJ = YAU(J)
+									CALL CLOSEP(EPS1,J,QJ,XU(G),YU(G),XJ,YJ,FIP,POP)
+C
+C ----- Scale result from close subroutine
+C									print *,"POP:",pop	
+									FIP = FIP/COEF
+									POP = POP + QTOT * COEP
+									POP = POP + QJ   * COEP
+									PO(G) = PO(G) + POP
+									FI(G) = FI(G) + FIP
 								
 
-		       					ELSE
-							
-			  					R = DONE/R
-			 				        RX = XX*R
-			  					RY = YY*R
-			  					OUT2 = DCMPLX(RX,-RY)
-			  					OUT3 = -DLOG(R)*DHALF
-			  					OUT3 = OUT3*QJ
-			 					PO(G) = PO(G) + OUT3
-			 					FI(G) = FI(G) + OUT2*QJ
+								ELSE
+C									print *,"childless, iflag 2 and particle far away"
+									R = DONE/R
+									RX = XX*R
+									RY = YY*R
+									OUT2 = DCMPLX(RX,-RY)
+									OUT3 = -DLOG(R)*DHALF
+									OUT3 = OUT3*QJ
+									PO(G) = PO(G) + OUT3
+									FI(G) = FI(G) + OUT2*QJ
 								
-		       					END IF
- 52                 				CONTINUE
-		 			END IF
+								END IF
+ 52							CONTINUE
+						END IF
 
 C ----- Else if box is not childless: add its children to the
 C       non interaction list
 C
-	              	 	ELSE    
+					ELSE    
+C						print *,"not far and not childless"
+						NK = NCHI(K)
+						NP = K
+						DO 95 IFTY1=1,100000000
+							IF (NP .NE. K) GOTO 96
+C							print *,"IEN inside 95",IEN
+							IEN = IEN+1
+							JBOX(IEN)= NK
+							NK = NK+1
+							NP = NPAR(NK)
+95						CONTINUE
+ 96					CONTINUE
 
-		 			NK = NCHI(K)
-		 			NP = K
-		 			DO 95 IFTY1=1,100000000
-		    				IF (NP .NE. K) GOTO 96
-		    				IEN = IEN+1
-		    				JBOX(IEN)= NK
-		    				NK = NK+1
-		    				NP = NPAR(NK)
-95              			CONTINUE
- 96              			CONTINUE
-
-	      			END IF
- 100       		CONTINUE
-	  	 DO 200 J=1,IEN
-	  	  	  KBOX(J) = JBOX(J)
-200      	 CONTINUE
- 250   			 CONTINUE
- 251    	CONTINUE
+				      END IF
+C				print *,"Next KK......"
+100			CONTINUE
+		 DO 200 J=1,IEN
+			  KBOX(J) = JBOX(J)
+200		 CONTINUE
+ 250				 CONTINUE
+ 251		CONTINUE
 1002    CONTINUE
 
 	RETURN
@@ -1015,7 +1022,7 @@ C
 	   Z0=Z(I)-X0Y0
 	   CALL DSEXP1(Z0,NORM(I),A1,N)
 	   DO 1400 J=1,N
-	      A(J)=A(J)+A1(J)*D
+		A(J)=A(J)+A1(J)*D
  1400      CONTINUE
  1600   CONTINUE
 	RETURN
@@ -1049,7 +1056,7 @@ C
 	   Z0=Z(I)-X0Y0
 	   CALL DSEXDF(Z0,A1,N)
 	   DO 2400 J=1,N
-	      A(J)=A(J)+A1(J)*D
+		A(J)=A(J)+A1(J)*D
  2400      CONTINUE
  2600   CONTINUE
 	RETURN
@@ -1084,7 +1091,7 @@ C
 C          A(I0)=A(I0)+A1(I0)*D
 	   A(I0)=A(I0)+       D
 	   DO 3000 J=1,N
-	      A(J)=A(J)+A1(J)*D
+		A(J)=A(J)+A1(J)*D
 C             A(J)=0
  3000      CONTINUE
  3200   CONTINUE
@@ -1200,8 +1207,8 @@ ccc	DO 2600 I=2,81
 	   I1 = I-1
 	   C(I,1) = 1
 	   DO 2400 J=2,I
-	      J1 = J-1
-	      C(I,J) = C(I1,J)+C(I1,J1)
+		J1 = J-1
+		C(I,J) = C(I1,J)+C(I1,J1)
  2400      CONTINUE
  2600   CONTINUE
 	ICALL = 1
@@ -1258,20 +1265,20 @@ C
 	   M=M1-1
 	   NMM = N
 	   DO 3410 K = 1,NMM,4
-	      KPM=K+M
-	      B2(M)=B2(M)+ ANEW(K)*C(KPM,K)
+		KPM=K+M
+		B2(M)=B2(M)+ ANEW(K)*C(KPM,K)
  3410      CONTINUE
 	   DO 3420 K = 2,NMM,4
-	      KPM=K+M
-	      B3(M)=B3(M)+ ANEW(K)*C(KPM,K)
+		KPM=K+M
+		B3(M)=B3(M)+ ANEW(K)*C(KPM,K)
  3420      CONTINUE
 	   DO 3430 K = 3,NMM,4
-	      KPM=K+M
-	      B4(M)=B4(M)+ ANEW(K)*C(KPM,K)
+		KPM=K+M
+		B4(M)=B4(M)+ ANEW(K)*C(KPM,K)
  3430      CONTINUE
 	   DO 3440 K = 4,NMM,4
-	      KPM=K+M
-	      B1(M)=B1(M)+ ANEW(K)*C(KPM,K)
+		KPM=K+M
+		B1(M)=B1(M)+ ANEW(K)*C(KPM,K)
  3440      CONTINUE
  3600   CONTINUE
 C
@@ -1468,8 +1475,8 @@ C
 	DO 5800 K1=1,N1
 	   K=K1-1
 	   DO 5600 M1=1,K1
-	      M=M1-1
-	      B(M)= B(M)+ANEW(K)*C(K1,M1)
+		M=M1-1
+		B(M)= B(M)+ANEW(K)*C(K1,M1)
  5600      CONTINUE
  5800   CONTINUE
 C

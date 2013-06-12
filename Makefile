@@ -10,7 +10,11 @@ fmmtest.exe: $(OBJECTS)
 test: fmmtest.exe
 	@echo Testing FMM...
 	./fmmtest.exe
-
+new: new.exe
+	@echo Checking stuff
+	./new.exe
+new.exe: new.f
+	gfortran -fno-automatic -std=legacy new.f -o new.exe
 clean: 
 	rm *.exe *.o
 
