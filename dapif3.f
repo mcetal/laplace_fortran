@@ -849,7 +849,7 @@ C
 									CALL CLOSEP(EPS1,J,QJ,XU(G),YU(G),XJ,YJ,FIP,POP)
 C
 C ----- Scale result from close subroutine
-C									print *,"POP:",pop	
+
 									FIP = FIP/COEF
 									POP = POP + QTOT * COEP
 									POP = POP + QJ   * COEP

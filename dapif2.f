@@ -1652,7 +1652,7 @@ C	LOCAL VARIABLES
             	ZJ = DCMPLX(XA(J),YA(J))
                	ZDIS = ZI-ZJ
                	DIS = CDABS(ZDIS)
-               	IF (ZI.NE.ZJ) THEN
+	  		IF (ZI.NE.ZJ) THEN
                   	POT(I) = POT(I) + QA(J)*DLOG(DIS)
                   	FIE(I) = FIE(I) + QA(J)*ZDIS/DIS**2
                	END IF
