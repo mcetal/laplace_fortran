@@ -745,9 +745,9 @@ C
 	INTEGER NL(1),IBOX(1),NBAT(1),NPAR(1),NCHI(1),INDB(1),
      *          IAT(1),JAT(1),KBOX(36),JBOX(36),M,C,G,IEN,K,KK
 	DOUBLE PRECISION XAU(1),YAU(1),XA(1),YA(1),XB(1),YB(1),
-     *                   X(2),Y(2),XU(2),YU(2),PO(2),POP,COEF,EPS1,
+     *                   X(1),Y(1),XU(1),YU(1),PO(1),POP,COEF,EPS1,
      *                   EPS2,COEP,EPS
-	DOUBLE COMPLEX QTOT,QA(1),LO(N,1),FI(2),FIP,Z(1),Z1,ZERO,OUT1,
+	DOUBLE COMPLEX QTOT,QA(1),LO(N,1),FI(1),FIP,Z(1),Z1,ZERO,OUT1,
      *                 OUT2,QJ
 
 	DATA ZERO/(0.0,0.0)/ , BOXSIZ/128.0/ ,DONE/1.0/
@@ -768,6 +768,7 @@ C
 	L2MIN = NL(1)
 	L2MAX = NL(2)-1
 	IEND = 0
+	IEN = 0
 C
 C ----- Loop
 	DO 1002 G = 1,M
@@ -775,15 +776,12 @@ C ----- Loop
 	   		IEN = IEN +1
 	   		KBOX(IEN) = K
 10    	CONTINUE
-
-		DO 250 IFTY=1,100000000
-C			print *,"IFTY: ",ifty	
+		DO 250 IFTY=1,100000000	
 			IF (IEN .LE. 0) GOTO 251
 			IEND = IEN
 			IEN = 0
 			D  = D/2
 			DO 100 KK = 1,IEND
-C					print *,"KK: ",KK
 					K  = KBOX(KK)
 C					print *,"K:",K
 					NB = NBAT(K)
@@ -792,12 +790,10 @@ C					print *,"K:",K
 					Z1 = DCMPLX(X1,Y1)
 					XD = DABS(X(G)-X1)
 					YD = DABS(Y(G)-Y1)
-C					print *,"Child status of box ",K,"is:",INDB(K)
 				
 C ----- If separated, evaluate multipole expansion
 C	
 					IF ((XD .GE. D) .OR. (YD .GE. D)) THEN
-C						print *,"inside multipole expansion"
 						IF (IFLAG .EQ. 1)  THEN
 							CALL DSLOR1(LO(2,K),Z1,Z(G),N,OUT2)
 							FI(G) = FI(G) + OUT2
@@ -810,7 +806,6 @@ C						print *,"inside multipole expansion"
 C
 C ----- Else if box childless: compute direct interactions
 					ELSE IF (INDB(K) .EQ. 1) THEN
-C						print *,"inside childless"
 						JMIN =IAT(K)+1
 						JMAX = IAT(K)+NB
 						IF (IFLAG .EQ. 1)  THEN
@@ -840,7 +835,6 @@ C
 								END IF
 51							CONTINUE
 					      ELSE
-C							print *,"childless and iflag is 2"	
 							DO 52 JJ = JMIN,JMAX
 								J = JAT(JJ)
 								XJ = XA(J)
@@ -850,7 +844,6 @@ C							print *,"childless and iflag is 2"
 								YY = Y(G) - YJ
 								R = XX**2+YY**2
 								IF (R .LE. EPS2) THEN
-C									print *,"childless, iflag 2 and close"
 									XJ = XAU(J)
 									YJ = YAU(J)
 									CALL CLOSEP(EPS1,J,QJ,XU(G),YU(G),XJ,YJ,FIP,POP)
@@ -865,7 +858,6 @@ C									print *,"POP:",pop
 								
 
 								ELSE
-C									print *,"childless, iflag 2 and particle far away"
 									R = DONE/R
 									RX = XX*R
 									RY = YY*R
@@ -883,7 +875,6 @@ C ----- Else if box is not childless: add its children to the
 C       non interaction list
 C
 					ELSE    
-C						print *,"not far and not childless"
 						NK = NCHI(K)
 						NP = K
 						DO 95 IFTY1=1,100000000
@@ -897,7 +888,6 @@ C							print *,"IEN inside 95",IEN
  96					CONTINUE
 
 				      END IF
-C				print *,"Next KK......"
 100			CONTINUE
 		 DO 200 J=1,IEN
 			  KBOX(J) = JBOX(J)

@@ -456,7 +456,8 @@ C
 C**********************************************************************
 C
 	SUBROUTINE DAPIF2 (IOUT,IFLAG7,NAT,NAPB,NINIRE,MEX,IERR,INFORM,
-     *                    TOL,EPS7,XA,YA,QA,POTEN,FIELD,WKSP,NSP,CLOSE)
+     *                    TOL,EPS7,XA,YA,QA,POTEN,FIELD,WKSP,NSP,XP,
+     *			  YP,NTP,PTAR,CFTAR,CLOSE)
 C
 C**********************************************************************
 C
@@ -466,7 +467,7 @@ C       Fast multipole method.
 C
 C
 C       A detailed descritpion is given in:
-C       `A Fast Adaptive Algorithm for Particle Simulation'.
+C       `A Fast Adaptive Algorithm for Particle Simulation`.
 C       J. Carrier, L. Greengard, V. Rokhlin.
 C       Yale U. Comp. Sci. Dept. RR # 496. Sep.86, Revised Jan.87
 C   _____________________________________________________________
@@ -631,9 +632,9 @@ C
 C**********************************************************************
 C
 	IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-	INTEGER IOUT(1),IERR(1),INFORM(1),NL(50),XB,YB,SHIFT,LO,TA
-	DOUBLE PRECISION WKSP(1),XA(1),YA(1),POTEN(1)
-	DOUBLE COMPLEX FIELD(1),QA(1),FI,QTOT,CZERO
+	INTEGER IOUT(1),IERR(1),INFORM(1),NL(50),XB,YB,SHIFT,LO,TA,NTP
+	DOUBLE PRECISION WKSP(1),XA(1),YA(1),POTEN(1),XP(1),YP(1),PTAR(1)
+	DOUBLE COMPLEX FIELD(1),QA(1),FI,QTOT,CZERO,CFTAR(1)
 	INTEGER *4 ZEROES(10)
 	REAL *8 INZERO
 	EQUIVALENCE (ZEROES(1),INZERO)
@@ -642,6 +643,7 @@ C
 C
 C ----- Print out parameters
 C
+
 	IOUT1 = IOUT(1)
 	IOUT2 = IOUT(2)
 	CALL PRINI(IOUT1,IOUT2)
@@ -664,6 +666,7 @@ ccc	CALL PRINF('   *',I,0)
 ccc	CALL PRINF('NUMBER OF PARTICLES =*',NAT,1)
 	IF ((IFLAG7.EQ.3).OR.(IFLAG7.EQ.1)) IFLAG = 1
 	IF (IFLAG7.EQ.2) IFLAG = 2
+	
 C
 C       INITIALIZE ANALYTICAL ROUTINES
 C
@@ -862,6 +865,7 @@ C
 	   RETURN
 	ENDIF
 C
+	
 C ----- Form index of childless and parent boxes  INDB.
 C
 	CALL DAINDB(NAPB,NAT,MAXP,NBOX,L,NL,WKSP(NNBAT),
@@ -901,7 +905,7 @@ C
 	ENDIF
 C
 C ----- Form interaction list (#1) and list of colleagues (#2)
-C       #1: separated children of parent's colleagues
+C       #1: separated children of parent`s colleagues
 C       #2: Adjacent boxes of the same size
 C
 	CALL DALI12 (NBOX,LEN,L,NL,WKSP(XB),WKSP(NYB),
@@ -999,6 +1003,7 @@ C
 C ----- Upward pass: form multipole expansions for childless boxes
 C       and merge them at all coarser mesh levels
 C
+
 ccc        ITIME = MRUN(0)
 	CALL DAUPWD (N,NAPB,IFLAG,NAT,NBOX,L,NL,WKSP(NXA),
      *               WKSP(NYA),QA,WKSP(IBOX),WKSP(XB),
@@ -1075,15 +1080,8 @@ C
  220       CONTINUE
 	END IF
 C
-C**********************************************************************
-C
-C       ENTRY DAPIP2 (NAPB,IFLAG7,NAT,XA,YA,QA,
-C     *               WKSP,NSP,XAP,YAP,PO,FI,EPS7,CLOSEP)
 C
 C   *** INFORMATION :
-C
-C       Second entry of the subroutine DAPIF2 .  For a detailed
-C       description see the abbreviated manual.
 C
 C   *** DESCRIPTION :
 C
@@ -1137,14 +1135,14 @@ C
 C	XAP1 = (XAP-XONEW) * RSCAL
 C	YAP1 = (YAP-YONEW) * RSCAL
 C	EPS = EPS7 * RSCAL
-	
 		
 	CALL DAPIP4 (N,NAPB,IFLAG,NAT,NBOX,L,NL,
      *       WKSP(NXA), WKSP(NYA),XA,YA,QA,WKSP(IBOX),WKSP(XB),
      *       WKSP(NYB), WKSP(NNBAT),WKSP(NNPAR),WKSP(NNCHI),
      *       WKSP(INDB),WKSP(IAT),
      *       WKSP(JAT),WKSP(LO),RSCAL,EPS7,QTOT,
-     *        XONEW,YONEW,CLOSE)
+     *        XONEW,YONEW,XP,YP,NTP,PTAR,CFTAR,CLOSE)
+
 C       FI = DCONJG(FI)
 C
 	RETURN
@@ -1154,31 +1152,29 @@ C
 	SUBROUTINE DAPIP4(N,NAPB,IFLAG,NAT,NBOX,L,NL,XA,YA,XAU,
      *                   YAU,QA,IBOX,XB,YB,NBAT,NPAR,NCHI,INDB,
      *                   IAT,JAT,LO,RSCAL,EPS7,QTOT,
-     *                   XONEW,YONEW,CLOSEP)
+     *                   XONEW,YONEW,XP,YP,NTP,POTENTIAL,FIELD,CLOSEP)
 C----------------------------------------------------------------------
 	
 	DOUBLE PRECISION XA(1),YA(1),XAU(1),YAU(1),XB(1),YB(1),RSCAL,EPS7,
-     *                   XONEW,YONEW
-	DOUBLE COMPLEX LO(N,1),QTOT,QA(1)
+     *                   XONEW,YONEW,XP(1),YP(1),POTENTIAL(1)
+	DOUBLE COMPLEX LO(N,1),QTOT,QA(1),FIELD(1)
 	INTEGER N,NAPB,IFLAG,L,NL(1),NBOX,IBOX(1),NBAT(1),NPAR(1),NCHI(1),INDB(1),
-     *          IAT(1),JAT(1),NAT
+     *          IAT(1),JAT(1),NAT,NTP
 
 
 C  		LOCAL VARIABLES
-	DOUBLE PRECISION POTENTIAL(2),EPS,XP(2),YP(2),XP1(2),YP1(2)
-	DOUBLE COMPLEX FIELD(2)
-	INTEGER M,K
+	DOUBLE PRECISION EPS,XP1(1),YP1(1)
+	INTEGER K
 	
-	M = 2
 C    Initializations
-	XP(1) = 1.d0
-	XP(2) = 123.d-2
-	YP(1) = 100.d0
-	YP(2) = 2.5d0
+C	XP(1) = 1.d0
+C	XP(2) = 123.d-2
+C	YP(1) = 100.d0
+C	YP(2) = 2.5d0
 	COEF = RSCAL
 	COEP = DLOG(RSCAL)
-
-	DO 1004 K=1,M
+	
+	DO 1004 K=1,NTP
 		 
 		XP1(K) = (XP(K)-XONEW) * RSCAL
 		YP1(K) = (YP(K)-YONEW) * RSCAL
@@ -1187,13 +1183,17 @@ C    Initializations
 1004	CONTINUE
 	
 	EPS = EPS7 * RSCAL
+C
+
 	CALL DAAUPO (N,NAPB,IFLAG,NAT,NBOX,L,NL,
      *              XA,YA,XAU,YAU,QA,IBOX,XB,
      *              YB, NBAT, NPAR,NCHI,
      *              INDB,IAT,
-     *              JAT,LO,XP,YP,XP1,YP1,M,POTENTIAL,FIELD,EPS,RSCAL,
+     *              JAT,LO,XP,YP,XP1,YP1,NTP,POTENTIAL,FIELD,EPS,RSCAL,
      *              QTOT,CLOSEP)
-	DO 1005 K=1,M
+C
+	
+	DO 1005 K=1,NTP
 		FIELD(K) = DCONJG(FIELD(K))
 C ----- Scale potentials and fields back
 C		
@@ -1210,11 +1210,8 @@ C
 		
 1005	CONTINUE
 	
-C	PRINTING INFORMATION : POTENTIAL AND FIELD AT TARGET POINTS
-	
-	CALL PRINF("POTENTIAL AT TARGET POINTS: ",POTENTIAL,M)
-	CALL PRINF("FIELD AT TARGET POINTS: ",FIELD,M)		
-	
+C	PRINTING INFORMATION : POTENTIAL AND FIELD AT TARGET POINTS	
+
 
 	RETURN
 C

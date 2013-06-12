@@ -1615,5 +1615,50 @@ C
  110    CONTINUE
         RETURN
         END
-C
+C******************************************************************
+C	Direct computation of potential and fields
+	SUBROUTINE DIPOTF(XA,YA,QA,NAT,XP,YP,M,POT,FIE)
+C******************************************************************
+C     Information
+C	XA(J) = First coordinate of the ith source
+C	YA(J) = Second coordinate of the ith source
+C 	QA(J) = Source strength of the ith source
+C 	NAT   = Number of sources
+C	XP(I) = First coordiante of the kth target point
+C	YP(I) = Second coordinate of the kth target point
+C 	M     = Number of target points
+C	Description
+C     Let z_i = (x_i,y_i) or x_i + I y_i
+c     potential at z_i = sum_j qa log|z_i - z_j|
+c     field at z_i = sum_j qa (z_i - z_j)/|z_i-z_j|^2
+ 
+C******************************************************************
 
+C	DECLARATIONS
+	DOUBLE PRECISION XA(1),YA(1),XP(1),YP(1),POT(1)
+	INTEGER NAT,M
+	DOUBLE COMPLEX QA(1),FIE(1)
+	
+C	LOCAL VARIABLES
+	INTEGER J,I
+	DOUBLE COMPLEX ZI,ZJ,ZDIS
+	DOUBLE PRECISION DIS
+	
+	DO I = 1, M
+      	POT(I) = 0.d0
+            FIE(I) = (0.d0,0.d0)
+            ZI = DCMPLX(XP(I),YP(I))
+            DO J = 1, NAT
+            	ZJ = DCMPLX(XA(J),YA(J))
+               	ZDIS = ZI-ZJ
+               	DIS = CDABS(ZDIS)
+               	IF (ZI.NE.ZJ) THEN
+                  	POT(I) = POT(I) + QA(J)*DLOG(DIS)
+                  	FIE(I) = FIE(I) + QA(J)*ZDIS/DIS**2
+               	END IF
+            END DO
+      END DO
+	
+	RETURN
+	END
+C*******************************************************************	
