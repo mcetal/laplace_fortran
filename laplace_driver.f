@@ -475,7 +475,7 @@ c
 c FMM
 
 	integer nsource,ntarget,ifpot,ifgrad,ifcharge,ifdipole,ifhess, 
-     1	     ifpottarg,ifgradtarg,ifhesstarg,iprec,ier,i,j,k,l
+     1	     ifpottarg,ifgradtarg,ifhesstarg,iprec,ier,i,j
 	real (kind=8) source(2,1000),dipvec(2,1000), 
      1			     targ(2,1000)		
 	complex*16  charge(nbk),dipstr(1000),pot(1000), 		
@@ -502,10 +502,11 @@ c set density for fmm call
 		istart = istart + nd
        end do
 
-	nsource = nsp
 	
 c Getting target points
 	call GET_TARGET(ntarget,xtar,ytar,ztar) 
+	print *,"Number of targets just after get target:",ntarget
+	print *,"xtar : ",xtar
 	do i = 1,ntarget
 		targ(1,i) = xtar(i)
 		targ(2,i) = ytar(i)
@@ -544,7 +545,7 @@ C      set source points
      1                      ifpottarg,pottarg,ifgradtarg,gradtarg,
      1			    ifhesstarg,hesstarg)
 
-	 print *,"Number of targets:",ntarget
+	
 	 print *,"Potential at target 10", pottarg(9)	
 	 call prin2("Potential at Target points:",pottarg,ntarget)
 	
