@@ -1,15 +1,36 @@
 #laplace_fortran/Makefile
 
-OBJECTS1 = fmm_driver.f dapif*.f prini.f random.f
-OBJECTS2 = dapif2.f dcfft.f matplot.f random.f targets.m dapif1.f dapif3.f laplace_driver.f prini.f   
+#source files for fmm testing
+FSOURCES = fmm_driver.f dapif*.f prini.f random.f
+
+#source files for solving the laplace equation
+LSOURCES = dapif2.f dcfft.f matplot.f random.f targets.m dapif1.f dapif3.f laplace_driver.f prini.f 
+
+#object files for fmm testing  
+FOBJECTS = $(FSOURCES:.f=.o)
+
+#object files for laplace equation
+LOBJECTS = $(LSOURCES:.f=.o) 
+
+#libraries required for laplace equation driver. 
+#libfmm2d.a is the compiled library of the latest fmm code.
+#GMRES has the required files for the GMRES method 
 LIB =   libhfmm2d.a GMRES/*.f
+
+#Set your fortran compiler here
 FC  = gfortran
-FLAGS = 
 
-.PHONY: test clean
+#Flags for fmm testing 
+FFLAGS = -fno-automatic -std=legacy
+#Flags for laplace equation solver
+LFLAGS1 = -c
+LFLAGS2 = -o
 
-fmmtest.exe: $(OBJECTS)
-	$(FC) -fno-automatic -std=legacy $(OBJECTS) -o fmmtest.exe
+#type `make clean` to rm the object files
+.PHONY: test clean help
+
+fmmtest.exe: $(FOBJECTS)
+	$(FC) -fno-automatic -std=legacy $(FSOURCES) -o fmmtest.exe
 
 test: fmmtest.exe
 	@echo Testing FMM...
@@ -18,7 +39,22 @@ new: new.exe
 	@echo Checking stuff
 	./new.exe
 new.exe: new.f
-	$(FC) -fno-automatic -std=legacy new.f -o new.exe
+	$(FC) $(FFLAGS) new.f -o new.exe
+
+laplace_driver.exe: $(LSOURCES)
+	$(FC) $(LFLAGS1) $<
+	$(FC)  $(LFLAGS2) $@ $(LOBJECTS) $(LIB)  	
+
+laplace: laplace_driver.exe
+	@echo Testing Laplace Equation...
+	./laplace_driver.exe
 clean: 
-	rm *.exe *.o
+	rm *.exe $(FOBJECTS) $(LOBJECTS)
+
+help:
+	@echo make test    --- Test FMM
+	@echo make new     --- Put your code in new.f and test using this command
+	@echo make laplace --- Test Laplace Equation Solver
+	@echo make clean   --- Remove all object files 
+	@echo make help    --- A self-reference
 
