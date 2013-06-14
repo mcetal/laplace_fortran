@@ -559,7 +559,7 @@ C         call PRINI(6,13)
             stop
          end if
 c
-c  discrete integral operator
+c	  discrete integral operator
 c         istart = 0
 c         do kbod = 1, k
 c	    do i = 1, nd
@@ -570,7 +570,7 @@ c               w(istart+i) = 0.5d0*u(istart+i) + dreal(zcauchy)
 c            end do
 c            istart = istart + nd
 c        end do
-c
+
       return
       end
 c

@@ -1,10 +1,10 @@
 #laplace_fortran/Makefile
 
 #source files for fmm testing
-FSOURCES = fmm_driver.f dapif*.f prini.f random.f
+FSOURCES = fmm_driver.f dapif1.f dapif2.f dapif3.f prini.f random.f
 
 #source files for solving the laplace equation
-LSOURCES = dapif2.f dcfft.f matplot.f random.f targets.m dapif1.f dapif3.f laplace_driver.f prini.f 
+LSOURCES = dapif2.f dcfft.f matplot.f random.f dapif1.f dapif3.f laplace_driver.f prini.f 
 
 #object files for fmm testing  
 FOBJECTS = $(FSOURCES:.f=.o)
@@ -42,14 +42,14 @@ new.exe: new.f
 	$(FC) $(FFLAGS) new.f -o new.exe
 
 laplace_driver.exe: $(LSOURCES)
-	$(FC) $(LFLAGS1) $<
-	$(FC)  $(LFLAGS2) $@ $(LOBJECTS) $(LIB)  	
+	$(FC) $(LFLAGS1) $(LSOURCES) 
+	$(FC) $(LFLAGS2) $@ $(LOBJECTS) $(LIB)  	
 
 laplace: laplace_driver.exe
 	@echo Testing Laplace Equation...
 	./laplace_driver.exe
 clean: 
-	rm *.exe $(FOBJECTS) $(LOBJECTS)
+	rm *.exe $(LOBJECTS) fmm_driver.o
 
 help:
 	@echo make test    --- Test FMM
