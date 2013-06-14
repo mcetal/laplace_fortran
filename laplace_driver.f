@@ -505,7 +505,7 @@ c set density for fmm call
 	nsource = nsp
 	
 c Getting target points
-	call GET_TAR(ntarget,xtar,ytar,ztar) 
+	call GET_TARGET(ntarget,xtar,ytar,ztar) 
 	do i = 1,ntarget
 		targ(1,i) = xtar(i)
 		targ(2,i) = ytar(i)
@@ -553,8 +553,8 @@ C
 C	 call DAPIF2 (IOUT,IFLAG7,NBK,NAPB,NINIRE,MEX,IERR,INFORM,
 C    *                TOL,EPS7,X,Y,QA,POTEN,CFIELD,WKSP,NSP,CLOSE)
 C         call PRINI(6,13)
-         if (ier(1).ne.0) then
-            write (6,*) '  IERR FROM FMM = ',IER(1)
+         if (ier.ne.0) then
+            write (6,*) '  IERR FROM FMM = ',IER
             stop
          end if
 c
