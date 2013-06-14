@@ -463,7 +463,7 @@ c
 c
 c---------------
       subroutine FASMVP (k, nd, nbk, zk, x, y, z, dz, rkappa, dsdth, 
-     1                   u, w, nsp, qa, poten, cfield, wksp)
+     1                   u, w, nsp, charge, poten, cfield, wksp)
 c---------------
 c  Calculates the matrix vector product
 c     u is the current guess for the density
@@ -472,11 +472,21 @@ c
       implicit real*8 (a-h,o-z)
       dimension x(nbk), y(nbk), rkappa(nbk), dsdth(nbk), u(*), w(*)
       complex*16 zk(k), z(nbk), dz(nbk), eye, delz, zn, zcauchy
+c FMM
+
+	integer nsource,ntarget,ifpot,ifgrad,ifcharge,ifdipole,ifhess, 
+     1	     ifpottarg,ifgradtarg,ifhesstarg,iprec,ier,i,j,k,l
+	real (kind=8) source(2,1000),dipvec(2,1000), 
+     1			     targ(2,1000)		
+	complex*16  charge(nbk),dipstr(1000),pot(1000), 		
+     1		   grad(2,1000),hess(3,1000),pottarg(1000), 
+     1		   gradtarg(2,1000),hesstarg(3,1000) 
+	
+c local variables
+	complex*16 ztar(1000)
+	dimension xtar(1000),ytar(1000)
+
 c
-c  FMM 
-      INTEGER *4 IOUT(2),INFORM(10),IERR(10)
-      COMPLEX*16 z2pii, QA(nbk), CFIELD(nbk), WKSP(NSP)
-      DIMENSION POTEN(nbk)
 c
        pi = 4.d0*datan(1.d0)
 	 eye = dcmplx(0.d0,1.d0)
@@ -484,23 +494,22 @@ c
 	 h = 2*pi/nd
 c 
 c set density for fmm call
-         istart = 0
-         do kbod = 1, k
-            do i = 1, nd
-               qa(istart+i) = u(istart+i)*dz(istart+i)*h
+       istart = 0
+       do kbod = 1, k
+		do i = 1, nd
+            charge(istart+i) = u(istart+i)*dz(istart+i)*h
             end do
-            istart = istart + nd
-         end do
+		istart = istart + nd
+       end do
 
-	integer nsource,ntarget,ifpot,ifgrad,ifcharge,ifdipole,ifhess, 
-	$	     ifpottarg,ifgradtarg,ihesstarg,iprec,ier,i,j,k,l
-	real (kind=8) source(2,100),dipvec(2,100), 
-	$			     targ(2,100)		
-	complex*16  charge(100),dipstr(100),pot(100), &		
-	$		   grad(2,100),hess(3,100),pottarg(100), &
-	$		   gradtarg(2,100),hesstarg(3,100) 
+	nsource = nsp
 	
-	
+c Getting target points
+	call GET_TAR(ntarget,xtar,ytar,ztar) 
+	do i = 1,ntarget
+		targ(1,i) = xtar(i)
+		targ(2,i) = ytar(i)
+	end do
 
 C     set parameters for FMM routine DAPIF2
 
@@ -518,27 +527,22 @@ C     set parameters for FMM routine DAPIF2
 	 l = 1 
 		
 
-	 do k = -5,4
-		 do i = -5,4
-			 source(1,j) = i
-			 source(2,j) = k
-			 charge(j) = dcmplx(1.d0,0.d0)
-			 j = j+1
-		 end do
-		 targ(1,l) = k*2.5d0
-		 targ(2,l) = k 
-		 l = l + 1
+		
+C      set source points
+	 nsource = nbk	
+	 do j = 1,nsource
+			 source(1,j) = x(j)
+			 source(2,j) = y(j)
 	 end do
-	 nsource = j - 1
-	 ntarget = l -1
+		
 
 
 		
 	 call lfmm2dparttarg(ier,iprec,nsource,source,ifcharge,charge, 
-       $                      ifdipole,dipstr,dipvec,ifpot,pot,ifgrad, 
-       $                      grad,ifhess,hess,ntarget,targ, 
-       $                      ifpottarg,pottarg,ifgradtarg,gradtarg, 
-	 $			     ifhesstarg,hesstarg)
+     1                      ifdipole,dipstr,dipvec,ifpot,pot,ifgrad, 
+     1                      grad,ifhess,hess,ntarget,targ, 
+     1                      ifpottarg,pottarg,ifgradtarg,gradtarg,
+     1			    ifhesstarg,hesstarg)
 
 	 print *,"Number of targets:",ntarget
 	 print *,"Potential at target 10", pottarg(9)	
@@ -555,16 +559,16 @@ C         call PRINI(6,13)
          end if
 c
 c  discrete integral operator
-         istart = 0
-         do kbod = 1, k
-	    do i = 1, nd
-		 self = 0.25d0*h*rkappa(istart+i)*dsdth(istart+i)/pi
-               zcauchy = self*u(istart+i) -
-     1                          dreal(z2pii*cfield(istart+i))
-               w(istart+i) = 0.5d0*u(istart+i) + dreal(zcauchy)
-            end do
-            istart = istart + nd
-         end do
+c         istart = 0
+c         do kbod = 1, k
+c	    do i = 1, nd
+c		 self = 0.25d0*h*rkappa(istart+i)*dsdth(istart+i)/pi
+c               zcauchy = self*u(istart+i) -
+c     1                          dreal(z2pii*cfield(istart+i))
+c               w(istart+i) = 0.5d0*u(istart+i) + dreal(zcauchy)
+c            end do
+c            istart = istart + nd
+c        end do
 c
       return
       end
