@@ -478,7 +478,7 @@ c  FMM
       COMPLEX*16 z2pii, QA(nbk), CFIELD(nbk), WKSP(NSP)
       DIMENSION POTEN(nbk)
 c
-         pi = 4.d0*datan(1.d0)
+       pi = 4.d0*datan(1.d0)
 	 eye = dcmplx(0.d0,1.d0)
 	 z2pii = 1.d0/(2.d0*pi*eye)
 	 h = 2*pi/nd
@@ -491,32 +491,74 @@ c set density for fmm call
             end do
             istart = istart + nd
          end do
-C
+
+	integer nsource,ntarget,ifpot,ifgrad,ifcharge,ifdipole,ifhess, 
+	$	     ifpottarg,ifgradtarg,ihesstarg,iprec,ier,i,j,k,l
+	real (kind=8) source(2,100),dipvec(2,100), 
+	$			     targ(2,100)		
+	complex*16  charge(100),dipstr(100),pot(100), &		
+	$		   grad(2,100),hess(3,100),pottarg(100), &
+	$		   gradtarg(2,100),hesstarg(3,100) 
+	
+	
+
 C     set parameters for FMM routine DAPIF2
-         IOUT(1) = 0
-         IOUT(2) = 0
-c      
-         IFLAG7 = 3
-         NAPB = 20
-         NINIRE = 2
-         TOL = 1.0d-14
-         MEX = 300
-         EPS7 = 1.0d-16
-	 call DAPIF2 (IOUT,IFLAG7,NBK,NAPB,NINIRE,MEX,IERR,INFORM,
-     *                TOL,EPS7,X,Y,QA,POTEN,CFIELD,WKSP,NSP,CLOSE)
-         call PRINI(6,13)
-         if (ierr(1).ne.0) then
-            write (6,*) '  IERR FROM DAPIF = ',IERR(1)
-            write (6,*) '  IERR = ',(ierr(ii),ii=1,4)
-            write (6,*) '  INFORM = ',(inform(ii),ii=1,4)
-            stop 
+
+	
+	 iprec = 3
+	 ifcharge =1
+	 ifdipole = 0
+	 ifpot = 1
+	 ifgrad = 1
+	 ifhess = 0
+	 ifpottarg = 1
+	 ifgradtarg = 1
+	 ifhesstarg = 0
+	 j = 1
+	 l = 1 
+		
+
+	 do k = -5,4
+		 do i = -5,4
+			 source(1,j) = i
+			 source(2,j) = k
+			 charge(j) = dcmplx(1.d0,0.d0)
+			 j = j+1
+		 end do
+		 targ(1,l) = k*2.5d0
+		 targ(2,l) = k 
+		 l = l + 1
+	 end do
+	 nsource = j - 1
+	 ntarget = l -1
+
+
+		
+	 call lfmm2dparttarg(ier,iprec,nsource,source,ifcharge,charge, 
+       $                      ifdipole,dipstr,dipvec,ifpot,pot,ifgrad, 
+       $                      grad,ifhess,hess,ntarget,targ, 
+       $                      ifpottarg,pottarg,ifgradtarg,gradtarg, 
+	 $			     ifhesstarg,hesstarg)
+
+	 print *,"Number of targets:",ntarget
+	 print *,"Potential at target 10", pottarg(9)	
+	 call prin2("Potential at Target points:",pottarg,ntarget)
+	
+C
+         
+C	 call DAPIF2 (IOUT,IFLAG7,NBK,NAPB,NINIRE,MEX,IERR,INFORM,
+C    *                TOL,EPS7,X,Y,QA,POTEN,CFIELD,WKSP,NSP,CLOSE)
+C         call PRINI(6,13)
+         if (ier(1).ne.0) then
+            write (6,*) '  IERR FROM FMM = ',IER(1)
+            stop
          end if
 c
 c  discrete integral operator
          istart = 0
          do kbod = 1, k
 	    do i = 1, nd
-	       self = 0.25d0*h*rkappa(istart+i)*dsdth(istart+i)/pi
+		 self = 0.25d0*h*rkappa(istart+i)*dsdth(istart+i)/pi
                zcauchy = self*u(istart+i) -
      1                          dreal(z2pii*cfield(istart+i))
                w(istart+i) = 0.5d0*u(istart+i) + dreal(zcauchy)
