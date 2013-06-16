@@ -4,12 +4,15 @@ laplace_fortran : A Laplace Equation solver written in fortran
 Fortran code using fast integral equation methods to solve Laplace's equation
 
 To play around with the [Fast Multipole Method](http://en.wikipedia.org/wiki/Fast_multipole_method) : 
+    
     make test
 
 To run the laplace equation solver:
+    
     make laplace
 
 To test any small tweaks, put them in new.f and use
+    
     make new
 
 Use
@@ -17,10 +20,10 @@ Use
 when needed.
 
 For FMM, The following files are used:
- fmm_driver.f
- dapif*.f
- prini.f
- random.f
+* fmm_driver.f
+* dapif*.f(old fmm files)
+* prini.f
+* random.f
 
     libhfmm2d.a 
 is a compiled library of a new fmm code for Laplace and Helmholtz equation.
