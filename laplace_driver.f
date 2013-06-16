@@ -470,8 +470,10 @@ c     u is the current guess for the density
 c     w is (0.5I + K) u
 c
       implicit real*8 (a-h,o-z)
-      dimension x(nbk), y(nbk), rkappa(nbk), dsdth(nbk), u(*), w(*)
-      complex*16 zk(k), z(nbk), dz(nbk), eye, delz, zn, zcauchy
+      dimension x(nbk), y(nbk), rkappa(nbk), dsdth(nbk), u(*), w(*),
+     1          poten(nbk)
+      complex*16 zk(k), z(nbk), dz(nbk), eye, delz, zn, zcauchy, 
+     1           cfield(nbk)  
 c FMM
 
 	integer nsource,ntarget,ifpot,ifgrad,ifcharge,ifdipole,ifhess, 
@@ -483,8 +485,8 @@ c FMM
      1		   gradtarg(2,1000),hesstarg(3,1000) 
 	
 c local variables
-	complex*16 ztar(1000)
-	dimension xtar(1000),ytar(1000)
+	complex*16 ztar(100)
+	dimension xtar(100),ytar(100)
 
 c
 c
@@ -504,9 +506,8 @@ c set density for fmm call
 
 	
 c Getting target points
-	call GET_TARGET(ntarget,xtar,ytar,ztar) 
-	print *,"Number of targets just after get target:",ntarget
-	print *,"xtar : ",xtar
+	ntarget = 100
+	call GET_TARGET(ntarget,xtar,ytar,ztar)
 	do i = 1,ntarget
 		targ(1,i) = xtar(i)
 		targ(2,i) = ytar(i)
@@ -545,32 +546,50 @@ C      set source points
      1                      ifpottarg,pottarg,ifgradtarg,gradtarg,
      1			    ifhesstarg,hesstarg)
 
+
 	
-	 print *,"Potential at target 10", pottarg(9)	
-	 call prin2("Potential at Target points:",pottarg,ntarget)
+c	 print *,"Potential at target 10", pottarg(9)	
+c	 call prin2("Potential at Target points:",pottarg,ntarget)
 	
 C
          
-C	 call DAPIF2 (IOUT,IFLAG7,NBK,NAPB,NINIRE,MEX,IERR,INFORM,
-C    *                TOL,EPS7,X,Y,QA,POTEN,CFIELD,WKSP,NSP,CLOSE)
-C         call PRINI(6,13)
-         if (ier.ne.0) then
-            write (6,*) '  IERR FROM FMM = ',IER
+c	 call DAPIF2 (IOUT,IFLAG7,NBK,NAPB,NINIRE,MEX,IERR,INFORM,
+c     1                TOL,EPS7,X,Y,QA,POTEN,CFIELD,WKSP,NSP,CLOSE)
+c         call PRINI(6,13)
+         if (ier.eq.4) then
+            print *, 'ERROR IN FMM: Cannot allocate tree workspace'
             stop
+	   else if(ier.eq.8) then
+		print *, 'ERROR IN FMM: Cannot allocate bulk FMM workspace'
+		stop
+	   else if(ier.eq.16) then
+		print *, 'ERROR IN FMM: Cannot allocate multipole expansion workspace 
+     1			in FMM' 
+		stop
          end if
-c
-c	  discrete integral operator
-c         istart = 0
-c         do kbod = 1, k
-c	    do i = 1, nd
-c		 self = 0.25d0*h*rkappa(istart+i)*dsdth(istart+i)/pi
-c               zcauchy = self*u(istart+i) -
-c     1                          dreal(z2pii*cfield(istart+i))
-c               w(istart+i) = 0.5d0*u(istart+i) + dreal(zcauchy)
-c            end do
-c            istart = istart + nd
-c        end do
+	  
+c       Just a guess. The gradient of potential returned by new fmm method is
+c      2*n. Each element is complex. Whereas cfield is a complex vector 1*n where
+c      each element is(F_x,F_y)
 
+		do i = 1,nbk
+			cfield(i) = dcmplx(dreal(grad(1,i)),dreal(grad(2,i)))
+			poten(i) = dreal(pot(i))
+		end do
+
+
+c	  discrete integral operator
+         istart = 0
+         do kbod = 1, k
+	    do i = 1, nd
+		 self = 0.25d0*h*rkappa(istart+i)*dsdth(istart+i)/pi
+              zcauchy = self*u(istart+i) -
+     1                          dreal(z2pii*cfield(istart+i))
+               w(istart+i) = 0.5d0*u(istart+i) + dreal(zcauchy)
+            end do
+           istart = istart + nd
+        end do
+c
       return
       end
 c
