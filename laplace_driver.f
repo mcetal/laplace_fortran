@@ -51,7 +51,7 @@ c
 c Fast Multipole Arrays
       dimension x_zeta(nmax+ng_max), y_zeta(nmax+ng_max)
       complex*16 qa(nmax+ng_max), cfield(2,nmax+ng_max),cftarg(2,ntar)
-      dimension poten(nmax+ng_max), pottarg(ntar)
+     1       ,poten(nmax+ng_max), pottarg(ntar)
 c
 c FFT arrays
       dimension wsave(4*npmax+15)
@@ -462,30 +462,29 @@ c
 c
 c---------------
       subroutine FASMVP (k, nd, nbk, zk, x, y, z, dz, rkappa, dsdth, 
-     1           u, w,ntar,charge, poten, cfield, pottarg,cftarg)
+     1           u, w,ntar,dipstr, poten, cfield, pottarg,cftarg)
 c---------------
 c  Calculates the matrix vector product
 c     u is the current guess for the density
 c     w is (0.5I + K) u
 c
       implicit real*8 (a-h,o-z)
-      dimension x(nbk), y(nbk), rkappa(nbk), dsdth(nbk), u(*), w(*),
-     1          poten(nbk),pottarg(ntar)
+      dimension x(nbk), y(nbk), rkappa(nbk), dsdth(nbk), u(*), w(*)
       complex*16 zk(k), z(nbk), dz(nbk), eye, delz, zn, zcauchy, 
-     1           cfield(2,nbk),cftarg(2,ntar)  
+     1        pottarg(ntar),poten(nbk),cfield(2,nbk),cftarg(2,ntar)  
 c FMM
 
 	integer nsource,ntarget,ifpot,ifgrad,ifcharge,ifdipole,ifhess, 
      1	     ifpottarg,ifgradtarg,ifhesstarg,iprec,ier,i,j
-	real (kind=8) source(2,1000),dipvec(2,1000), 
-     1			     targ(2,1000)		
-	complex*16  charge(nbk),dipstr(1000), 		
-     1		   hess(3,1000), 
-     1		   hesstarg(3,100) 
+	real (kind=8) source(2,nbk),dipvec(2,nbk), 
+     1			     targ(2,ntar)		
+	complex*16 dipstr(nbk),charge(nbk), 		
+     1		   hess(3,nbk), 
+     1		   hesstarg(3,ntar) 
 	
 c local variables
-	complex*16 ztar(100)
-	dimension xtar(100),ytar(100)
+	complex*16 ztar(ntar)
+	dimension xtar(ntar),ytar(ntar)
 
 c
 c
@@ -498,8 +497,8 @@ c set density for fmm call
        istart = 0
        do kbod = 1, k
 		do i = 1, nd
-            charge(istart+i) = u(istart+i)*dz(istart+i)*h
-            end do
+            	 	dipstr(istart+i) = u(istart+i)*dz(istart+i)*h
+                end do
 		istart = istart + nd
        end do
 
@@ -516,13 +515,13 @@ C     set parameters for FMM routine DAPIF2
 
 	
 	 iprec = 3
-	 ifcharge =1
-	 ifdipole = 0
+	 ifcharge =0
+	 ifdipole = 1
 	 ifpot = 1
-	 ifgrad = 1
+	 ifgrad = 0
 	 ifhess = 0
 	 ifpottarg = 1
-	 ifgradtarg = 1
+	 ifgradtarg = 0
 	 ifhesstarg = 0
 	 j = 1
 	 l = 1 
@@ -534,6 +533,9 @@ C      set source points
 	 do j = 1,nsource
 			 source(1,j) = x(j)
 			 source(2,j) = y(j)
+			 dipvec(1,j) = -dimag(dz(j))
+			 dipvec(2,j) = dreal(dz(j))
+
 	 end do
 		
 
@@ -546,9 +548,10 @@ C      set source points
      1			    ifhesstarg,hesstarg)
 
 
+
 	
-c	 print *,"Potential at target 10", pottarg(9)	
-c	 call prin2("Potential at Target points:",pottarg,ntarget)
+	 	
+	 call prin2("Potential at source points:",poten,nbk)
 	
 C
          
@@ -566,18 +569,6 @@ c         call PRINI(6,13)
      1			in FMM' 
 		stop
          end if
-	  
-c       Just a guess. The gradient of potential returned by new fmm method is
-c      2*n. Each element is complex. Whereas cfield is a complex vector 1*n where
-c      each element is(F_x,F_y)
-
-c		do i = 1,nbk
-c			cfield(i) = dcmplx(sqrt(dimag(grad(1,i))**2 + 
-c     1			dreal(grad(1,i))**2),sqrt(dimag(grad(2,i))**2
-c     1			+dreal(grad(2,i))**2))
-c			poten(i) = dreal(pot(i))
-c		end do
-
 
 c	  discrete integral operator
          istart = 0
@@ -585,7 +576,7 @@ c	  discrete integral operator
 	    do i = 1, nd
 		 self = 0.25d0*h*rkappa(istart+i)*dsdth(istart+i)/pi
               zcauchy = self*u(istart+i) -
-     1                          dreal(z2pii*cfield(1,istart+i))
+     1                          dreal(z2pii*poten(istart+i))
                w(istart+i) = 0.5d0*u(istart+i) + dreal(zcauchy)
             end do
            istart = istart + nd
@@ -621,7 +612,7 @@ c
 c  FMM workspace arrays 
       parameter (ntar = 100)
       COMPLEX*16 QA(NMAX), CFIELD(2,NMAX), cftarg(2,ntar)
-      DIMENSION POTEN(NMAX), pottarg(ntar)
+     1       ,POTEN(NMAX), pottarg(ntar)
 c
 c  local work arrays
       real*4 timep(2), etime
