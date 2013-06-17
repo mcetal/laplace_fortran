@@ -51,8 +51,8 @@ c
 c Fast Multipole Arrays
       parameter (nsp = 20*nmax + 20*ng_max)
       dimension x_zeta(nmax+ng_max), y_zeta(nmax+ng_max)
-      complex*16 qa(nmax+ng_max), cfield(nmax+ng_max)
-      dimension poten(nmax+ng_max), wksp(nsp)
+      complex*16 qa(nmax+ng_max), cfield(2,nmax+ng_max),cftarg(2,ntar)
+      dimension poten(nmax+ng_max), pottarg(ntar)
 c
 c FFT arrays
       dimension wsave(4*npmax+15)
@@ -463,7 +463,7 @@ c
 c
 c---------------
       subroutine FASMVP (k, nd, nbk, zk, x, y, z, dz, rkappa, dsdth, 
-     1                   u, w, nsp, charge, poten, cfield, wksp)
+     1           u, w, nsp,ntar,charge, poten, cfield, pottarg,cftarg)
 c---------------
 c  Calculates the matrix vector product
 c     u is the current guess for the density
@@ -471,18 +471,18 @@ c     w is (0.5I + K) u
 c
       implicit real*8 (a-h,o-z)
       dimension x(nbk), y(nbk), rkappa(nbk), dsdth(nbk), u(*), w(*),
-     1          poten(nbk)
+     1          poten(nbk),pottarg(ntar)
       complex*16 zk(k), z(nbk), dz(nbk), eye, delz, zn, zcauchy, 
-     1           cfield(nbk)  
+     1           cfield(2,nbk),cftarg(2,ntar)  
 c FMM
 
 	integer nsource,ntarget,ifpot,ifgrad,ifcharge,ifdipole,ifhess, 
      1	     ifpottarg,ifgradtarg,ifhesstarg,iprec,ier,i,j
 	real (kind=8) source(2,1000),dipvec(2,1000), 
      1			     targ(2,1000)		
-	complex*16  charge(nbk),dipstr(1000),pot(1000), 		
-     1		   grad(2,1000),hess(3,1000),pottarg(1000), 
-     1		   gradtarg(2,1000),hesstarg(3,1000) 
+	complex*16  charge(nbk),dipstr(1000), 		
+     1		   hess(3,1000), 
+     1		   hesstarg(3,100) 
 	
 c local variables
 	complex*16 ztar(100)
@@ -490,6 +490,9 @@ c local variables
 
 c
 c
+
+	print *,"NBK IS********",nbk
+	print *,"NSP IS********",nsp
        pi = 4.d0*datan(1.d0)
 	 eye = dcmplx(0.d0,1.d0)
 	 z2pii = 1.d0/(2.d0*pi*eye)
@@ -506,7 +509,7 @@ c set density for fmm call
 
 	
 c Getting target points
-	ntarget = 100
+	ntarget = ntar
 	call GET_TARGET(ntarget,xtar,ytar,ztar)
 	do i = 1,ntarget
 		targ(1,i) = xtar(i)
@@ -541,9 +544,9 @@ C      set source points
 
 		
 	 call lfmm2dparttarg(ier,iprec,nsource,source,ifcharge,charge, 
-     1                      ifdipole,dipstr,dipvec,ifpot,pot,ifgrad, 
-     1                      grad,ifhess,hess,ntarget,targ, 
-     1                      ifpottarg,pottarg,ifgradtarg,gradtarg,
+     1                      ifdipole,dipstr,dipvec,ifpot,poten,ifgrad, 
+     1                      cfield,ifhess,hess,ntarget,targ, 
+     1                      ifpottarg,pottarg,ifgradtarg,cftarg,
      1			    ifhesstarg,hesstarg)
 
 
@@ -572,12 +575,12 @@ c       Just a guess. The gradient of potential returned by new fmm method is
 c      2*n. Each element is complex. Whereas cfield is a complex vector 1*n where
 c      each element is(F_x,F_y)
 
-		do i = 1,nbk
-			cfield(i) = dcmplx(sqrt(dimag(grad(1,i))**2 + 
-     1			dreal(grad(1,i))**2),sqrt(dimag(grad(2,i))**2
-     1			+dreal(grad(2,i))**2))
-			poten(i) = dreal(pot(i))
-		end do
+c		do i = 1,nbk
+c			cfield(i) = dcmplx(sqrt(dimag(grad(1,i))**2 + 
+c     1			dreal(grad(1,i))**2),sqrt(dimag(grad(2,i))**2
+c     1			+dreal(grad(2,i))**2))
+c			poten(i) = dreal(pot(i))
+c		end do
 
 
 c	  discrete integral operator
@@ -586,7 +589,7 @@ c	  discrete integral operator
 	    do i = 1, nd
 		 self = 0.25d0*h*rkappa(istart+i)*dsdth(istart+i)/pi
               zcauchy = self*u(istart+i) -
-     1                          dreal(z2pii*cfield(istart+i))
+     1                          dreal(z2pii*cfield(1,istart+i))
                w(istart+i) = 0.5d0*u(istart+i) + dreal(zcauchy)
             end do
            istart = istart + nd
@@ -621,8 +624,9 @@ c
 c
 c  FMM workspace arrays 
       parameter (nsp = 16*nmax+1000)
-      COMPLEX*16 QA(NMAX), CFIELD(NMAX), WKSP(NSP)
-      DIMENSION POTEN(NMAX)
+      parameter (ntar = 100)
+      COMPLEX*16 QA(NMAX), CFIELD(2,NMAX), cftarg(2,ntar)
+      DIMENSION POTEN(NMAX), pottarg(ntar)
 c
 c  local work arrays
       real*4 timep(2), etime
@@ -630,7 +634,7 @@ c
          t0 = etime(timep)
 c         
          call FASMVP (k, nd, nbk, zk, x, y, z, dz, rkappa, dsdth, 
-     1                xx, yy, nsp, qa, poten, cfield, wksp)
+     1         xx, yy, nsp,ntar, qa, poten, cfield, pottarg,cftarg)
          t1 = etime(timep)
          tsec = t1 - t0
 ccc         WRITE(13,*) 'TIME IN SECONDS FOR MATVEC = ',TSEC
