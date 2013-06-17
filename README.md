@@ -28,7 +28,11 @@ For FMM, The following files are used:
     
     libhfmm2d.a 
 
-is a compiled library of a new fmm code for Laplace and Helmholtz equation.
+is a compiled library of a [new fmm code](http://www.cims.nyu.edu/cmcl/fmm2dlib/fmmlib2d-1.2.zip) for Laplace and Helmholtz equation.
+To get the library,
+    
+    #Extract the files
+    make lib
 
 The directory GMRES contains all of the files needed for GMRES
 It would probably be best to compile these into a library
