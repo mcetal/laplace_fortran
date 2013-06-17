@@ -49,7 +49,6 @@ c
       dimension rhs(nmax+kmax), soln(nmax+kmax)
 c
 c Fast Multipole Arrays
-      parameter (nsp = 20*nmax + 20*ng_max)
       dimension x_zeta(nmax+ng_max), y_zeta(nmax+ng_max)
       complex*16 qa(nmax+ng_max), cfield(2,nmax+ng_max),cftarg(2,ntar)
       dimension poten(nmax+ng_max), pottarg(ntar)
@@ -463,7 +462,7 @@ c
 c
 c---------------
       subroutine FASMVP (k, nd, nbk, zk, x, y, z, dz, rkappa, dsdth, 
-     1           u, w, nsp,ntar,charge, poten, cfield, pottarg,cftarg)
+     1           u, w,ntar,charge, poten, cfield, pottarg,cftarg)
 c---------------
 c  Calculates the matrix vector product
 c     u is the current guess for the density
@@ -490,9 +489,6 @@ c local variables
 
 c
 c
-
-	print *,"NBK IS********",nbk
-	print *,"NSP IS********",nsp
        pi = 4.d0*datan(1.d0)
 	 eye = dcmplx(0.d0,1.d0)
 	 z2pii = 1.d0/(2.d0*pi*eye)
@@ -623,7 +619,6 @@ c
       complex*16 zk(kmax), dz(nmax), z(nmax)
 c
 c  FMM workspace arrays 
-      parameter (nsp = 16*nmax+1000)
       parameter (ntar = 100)
       COMPLEX*16 QA(NMAX), CFIELD(2,NMAX), cftarg(2,ntar)
       DIMENSION POTEN(NMAX), pottarg(ntar)
@@ -634,7 +629,7 @@ c
          t0 = etime(timep)
 c         
          call FASMVP (k, nd, nbk, zk, x, y, z, dz, rkappa, dsdth, 
-     1         xx, yy, nsp,ntar, qa, poten, cfield, pottarg,cftarg)
+     1         xx, yy,ntar, qa, poten, cfield, pottarg,cftarg)
          t1 = etime(timep)
          tsec = t1 - t0
 ccc         WRITE(13,*) 'TIME IN SECONDS FOR MATVEC = ',TSEC
