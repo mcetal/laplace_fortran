@@ -573,7 +573,9 @@ c      2*n. Each element is complex. Whereas cfield is a complex vector 1*n wher
 c      each element is(F_x,F_y)
 
 		do i = 1,nbk
-			cfield(i) = dcmplx(dreal(grad(1,i)),dreal(grad(2,i)))
+			cfield(i) = dcmplx(sqrt(dimag(grad(1,i))**2 + 
+     1			dreal(grad(1,i))**2),sqrt(dimag(grad(2,i))**2
+     1			+dreal(grad(2,i))**2))
 			poten(i) = dreal(pot(i))
 		end do
 
