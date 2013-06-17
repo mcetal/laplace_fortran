@@ -505,6 +505,8 @@ c
 	 call DAPIF2 (IOUT,IFLAG7,NBK,NAPB,NINIRE,MEX,IERR,INFORM,
      *                TOL,EPS7,X,Y,QA,POTEN,CFIELD,WKSP,NSP,CLOSE)
          call PRINI(6,13)
+	 call PRIN2("Cfield at source points:",cfield,nbk)
+	 call PRIN2("Potential at source points:",poten,nbk)
          if (ierr(1).ne.0) then
             write (6,*) '  IERR FROM DAPIF = ',IERR(1)
             write (6,*) '  IERR = ',(ierr(ii),ii=1,4)
