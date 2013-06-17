@@ -498,10 +498,10 @@ c set density for fmm call
        do kbod = 1, k
 		do i = 1, nd
             	 	dipstr(istart+i) = u(istart+i)*dz(istart+i)*h
+			charge(istart+i) = dcmplx(0.d0,0.d0)
                 end do
 		istart = istart + nd
        end do
-
 	
 c Getting target points
 	ntarget = ntar
@@ -576,7 +576,7 @@ c	  discrete integral operator
 	    do i = 1, nd
 		 self = 0.25d0*h*rkappa(istart+i)*dsdth(istart+i)/pi
               zcauchy = self*u(istart+i) -
-     1                          dreal(z2pii*poten(istart+i))
+     1                          dreal(poten(istart+i))
                w(istart+i) = 0.5d0*u(istart+i) + dreal(zcauchy)
             end do
            istart = istart + nd
