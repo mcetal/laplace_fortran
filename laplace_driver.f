@@ -141,7 +141,7 @@ c
      *                        ydot, xddot, yddot)
 c---------------
 c
-c  The initial curve parameterization is given in term of theta
+c  The initial curve parameterization is given in terms of theta
 c  This routine returns curve points and derivative data given
 c  theta
 c
@@ -537,8 +537,6 @@ C      set source points
 			 dipvec(2,j) = dreal(dz(j))
 
 	 end do
-		
-
 
 		
 	 call lfmm2dparttarg(ier,iprec,nsource,source,ifcharge,charge, 
@@ -547,11 +545,6 @@ C      set source points
      1                      ifpottarg,pottarg,ifgradtarg,cftarg,
      1			    ifhesstarg,hesstarg)
 
-
-
-	
-	 	
-	 call prin2("Potential at source points:",poten,nbk)
 	
 C
          
@@ -576,7 +569,7 @@ c	  discrete integral operator
 	    do i = 1, nd
 		 self = 0.25d0*h*rkappa(istart+i)*dsdth(istart+i)/pi
               zcauchy = self*u(istart+i) -
-     1                          dreal(poten(istart+i))
+     1                         dreal(h*poten(istart+i)/2*eye)
                w(istart+i) = 0.5d0*u(istart+i) + dreal(zcauchy)
             end do
            istart = istart + nd
@@ -617,6 +610,7 @@ c
 c  local work arrays
       real*4 timep(2), etime
 c
+	print *,"Charges just before calling fasmvp inside matvec",qa(20)
          t0 = etime(timep)
 c         
          call FASMVP (k, nd, nbk, zk, x, y, z, dz, rkappa, dsdth, 
