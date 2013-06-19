@@ -497,19 +497,20 @@ c set density for fmm call
        istart = 0
        do kbod = 1, k
 		do i = 1, nd
-            	 	dipstr(istart+i) = u(istart+i)*dz(istart+i)*h
+            	 	dipstr(istart+i) = u(istart+i)
+c*dz(istart+i)*h
 			charge(istart+i) = dcmplx(0.d0,0.d0)
                 end do
 		istart = istart + nd
        end do
 	
 c Getting target points
-	ntarget = ntar
-	call GET_TARGET(ntarget,xtar,ytar,ztar)
-	do i = 1,ntarget
-		targ(1,i) = xtar(i)
-		targ(2,i) = ytar(i)
-	end do
+c	ntarget = ntar
+c	call GET_TARGET(ntarget,xtar,ytar,ztar)
+c	do i = 1,ntarget
+c		targ(1,i) = xtar(i)
+c		targ(2,i) = ytar(i)
+c	end do
 
 C     set parameters for FMM routine DAPIF2
 
@@ -520,7 +521,7 @@ C     set parameters for FMM routine DAPIF2
 	 ifpot = 1
 	 ifgrad = 0
 	 ifhess = 0
-	 ifpottarg = 1
+	 ifpottarg = 0
 	 ifgradtarg = 0
 	 ifhesstarg = 0
 	 j = 1
@@ -569,11 +570,13 @@ c	  discrete integral operator
 	    do i = 1, nd
 		 self = 0.25d0*h*rkappa(istart+i)*dsdth(istart+i)/pi
               zcauchy = self*u(istart+i) -
-     1                         dreal(h*poten(istart+i)/2*eye)
+     1                         (h*poten(istart+i)/(2*pi))
                w(istart+i) = 0.5d0*u(istart+i) + dreal(zcauchy)
             end do
            istart = istart + nd
         end do
+
+c	call prin2("w after FASMVP",w,nbk)
 c
       return
       end
